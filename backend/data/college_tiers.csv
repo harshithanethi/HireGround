@@ -1,0 +1,10 @@
+college_name,tier,nirf_rank,state
+IIT Madras,Tier1,1.0,Tamil Nadu
+IIT Delhi,Tier1,2.0,Delhi
+NIT Tiruchirappalli,Tier1,9.0,Tamil Nadu
+IIIT Hyderabad,Tier1,47.0,Telangana
+BITS Pilani,Tier1,25.0,Rajasthan
+VIT Vellore,Tier2,11.0,Tamil Nadu
+SRM Institute of Science and Technology,Tier2,28.0,Tamil Nadu
+Anna University,Tier2,14.0,Tamil Nadu
+Local Engineering College,Tier3,,

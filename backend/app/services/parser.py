@@ -1,110 +1,196 @@
-import fitz  # PyMuPDF
-import spacy
+from __future__ import annotations
+
+import os
 import re
-import pandas as pd
-from typing import Dict, List
-import json
+from pathlib import Path
+from typing import List, Optional
 
-# Load once
-nlp = spacy.load("en_core_web_sm")
-DISTRICT_DF = pd.read_csv("data/india_context.csv")
+from app.schemas import ParsedResume
+from app.services.datasets import infer_college_tier, load_india_context_df
 
-def parse_resume(file_path: str) -> Dict:
-    """Extracts HireGround-specific fields from PDF resume"""
-    
-    # 1. Extract raw text
-    doc = fitz.open(file_path)
-    text = "".join([page.get_text() for page in doc])
-    doc.close()
-    
-    # 2. Core HireGround fields
-    parsed = {
-        "skills": extract_skills(text),
-        "college": extract_college(text),
-        "district": infer_district(text),
-        "cgpa": extract_cgpa(text),
-        "projects": count_projects(text),
-        "internships": count_internships(text),
-        "first_gen": detect_first_gen(text),
-        "rural": infer_rural(text),
-        "certifications": count_certs(text),
-        "raw_text": text[:2000]  # Truncated for API
-    }
-    
-    # 3. Auto-tier college
-    parsed["college_tier"], parsed["tier_credit"] = get_college_tier(parsed["college"], parsed["district"])
-    
-    return parsed
 
-# 🔍 Extraction Functions (90%+ accuracy on Indian resumes)
-def extract_college(text: str) -> str:
-    """Extract college name (VIT, IIT, Anna University, etc.)"""
+_SKILL_VOCAB = [
+    "python",
+    "java",
+    "javascript",
+    "typescript",
+    "react",
+    "node",
+    "fastapi",
+    "django",
+    "flask",
+    "docker",
+    "kubernetes",
+    "aws",
+    "gcp",
+    "azure",
+    "sql",
+    "postgres",
+    "mongodb",
+    "ml",
+    "machine learning",
+    "data science",
+    "nlp",
+    "pytorch",
+    "tensorflow",
+]
+
+
+def _extract_text_from_pdf(path: str) -> str:
+    # Lazy import so the backend can still start even if system libs for PyMuPDF
+    # are missing (e.g., `libstdc++.so.6`).
+    try:
+        import fitz  # type: ignore
+    except ImportError as exc:
+        raise RuntimeError(
+            "PyMuPDF (fitz) is not available in this environment. "
+            "PDF parsing requires libstdc++.so.6. "
+            "Install system dependency `libstdc++6` (Debian/Ubuntu) "
+            "or enable gcc/libstdcxx in your nix-shell."
+        ) from exc
+
+    doc = fitz.open(path)
+    try:
+        return "".join(page.get_text() for page in doc)
+    finally:
+        doc.close()
+
+
+def _extract_text_from_docx(path: str) -> str:
+    from docx import Document  # lazy import
+
+    d = Document(path)
+    parts: List[str] = []
+    for p in d.paragraphs:
+        if p.text:
+            parts.append(p.text)
+    return "\n".join(parts)
+
+
+def _extract_text(path: str) -> str:
+    suffix = Path(path).suffix.lower()
+    if suffix == ".pdf":
+        return _extract_text_from_pdf(path)
+    if suffix == ".docx":
+        return _extract_text_from_docx(path)
+    raise ValueError("Unsupported file type. Upload PDF or DOCX.")
+
+
+def extract_email(text: str) -> Optional[str]:
+    m = re.search(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", text, flags=re.I)
+    return m.group(0) if m else None
+
+
+def extract_phone(text: str) -> Optional[str]:
+    m = re.search(r"\b(?:\+91[\s-]?)?[6-9]\d{9}\b", text)
+    return m.group(0) if m else None
+
+
+def extract_name(text: str) -> Optional[str]:
+    # Heuristic: first non-empty line that looks like a name
+    for line in (l.strip() for l in text.splitlines()[:10]):
+        if not line:
+            continue
+        if len(line.split()) in (2, 3) and line.replace(" ", "").isalpha():
+            return line.title()
+    return None
+
+
+def extract_college(text: str) -> Optional[str]:
     patterns = [
-        r"(?i)(?:college|university|institute).*?(?:of\s+)?(.*?)(?=\s*(?:20\d{2}|B\.Tech|M\.Tech|\d{4}|\n|$))",
-        r"(?i)(VIT|IIT|NIT|IIIT|IISc|SRM|Amity|Manipal|Anna University)(?:\s|$)",
-        r"(?i)b\.tech.*?(?:from|at)\s*(.*?)(?=\s*(?:20\d{2}|\d{4}|\n|$))"
+        r"(?i)\b(?:college|university|institute)\b[^\n]{0,80}",
+        r"(?i)\b(IIT\s+[A-Z][A-Za-z]+|NIT\s+[A-Z][A-Za-z]+|IIIT\s+[A-Z][A-Za-z]+|IISc|BITS\s+Pilani|VIT|SRM|Manipal)\b[^\n]{0,60}",
     ]
-    for pattern in patterns:
-        match = re.search(pattern, text)
-        if match: return match.group(1).strip().title()
-    return "Local Engineering College"  # Realistic default
+    for p in patterns:
+        m = re.search(p, text)
+        if m:
+            return m.group(0).strip()
+    return None
 
-def infer_district(text: str) -> str:
-    """Map to your india_context.csv districts"""
-    districts = DISTRICT_DF['district'].tolist()
-    patterns = [rf"(?i)\b{re.escape(d)}\b" for d in districts]
-    for pattern in patterns:
-        if re.search(pattern, text): 
-            return re.search(pattern, text).group(0)
-    return "Patna"  # Low-job default for demo impact
 
 def extract_cgpa(text: str) -> float:
-    match = re.search(r"cgpa[:\s]*(\d+\.?\d*)|gpa[:\s]*(\d+\.?\d*)|percentage[:\s]*(\d+\.?\d*)%", text)
-    if match:
-        cgpa = float(match.group(1) or match.group(2) or match.group(3))
-        return min(cgpa / 10 * 10, 10.0) if cgpa > 10 else cgpa  # Normalize %
-    return 7.5  # Average
+    m = re.search(
+        r"(?i)\b(?:cgpa|gpa)\s*[:\-]?\s*(\d+(?:\.\d+)?)\b|\bpercentage\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*%\b",
+        text,
+    )
+    if not m:
+        return 7.5
+    val = float(m.group(1) or m.group(2))
+    if val > 10:
+        # percentage
+        return round(min(val / 10.0, 10.0), 2)
+    return round(min(val, 10.0), 2)
+
 
 def count_projects(text: str) -> int:
-    return len(re.findall(r"(?i)project|final year project|capstone", text))
+    return min(len(re.findall(r"(?i)\bproject\b|capstone|final year project", text)), 10)
+
 
 def count_internships(text: str) -> int:
-    return len(re.findall(r"(?i)internship|interned at|summer training", text))
+    return min(len(re.findall(r"(?i)\binternship\b|\binterned\b|summer training", text)), 10)
+
 
 def count_certs(text: str) -> int:
-    return len(re.findall(r"(?i)certification|aws|google cloud|coursera|udemy", text))
+    return min(len(re.findall(r"(?i)\bcertification\b|\bcoursera\b|\budemy\b|\baws\b|\bazure\b|\bgcp\b", text)), 10)
+
 
 def detect_first_gen(text: str) -> bool:
-    return "first generation" in text.lower() or "first in family" in text.lower()
+    t = text.lower()
+    return ("first generation" in t) or ("first-gen" in t) or ("first in family" in t)
+
 
 def infer_rural(text: str) -> bool:
-    return any(word in text.lower() for word in ["rural", "village", "district", "taluk"])
+    t = text.lower()
+    return any(w in t for w in ["rural", "village", "taluk", "block", "panchayat"])
+
 
 def extract_skills(text: str) -> List[str]:
-    """Demo skills - replace with your JD matching"""
-    demo_skills = ["Python", "React", "FastAPI", "Docker", "AWS"]
-    found = []
-    text_lower = text.lower()
-    for skill in demo_skills:
-        if skill.lower() in text_lower: found.append(skill)
-    return found
+    t = text.lower()
+    found: List[str] = []
+    for s in _SKILL_VOCAB:
+        if s in t:
+            found.append(s)
+    # normalize presentation
+    return sorted({x.title() if x != "ml" else "ML" for x in found})
 
-def get_college_tier(college: str, district: str) -> tuple[str, int]:
-    """Dynamic tiering from previous step"""
-    college = college.upper()
-    
-    tier1 = ["IIT", "IISc", "NIT", "BITS PILANI", "IIIT", "IIM"]
-    tier2 = ["VIT", "SRM", "MANIPAL", "AMITY", "ANNA UNIVERSITY"]
-    
-    if any(t1 in college for t1 in tier1): return "Tier1", 0
-    if any(t2 in college for t2 in tier2): return "Tier2", 5
-    
-    # District proxy
-    try:
-        district_row = DISTRICT_DF[DISTRICT_DF['district'].str.contains(district, case=False)].iloc[0]
-        job_density = district_row['job_density_per_100k']
-        if job_density < 3000: return "Tier3", 12
-        elif job_density < 5000: return "Tier3", 8
-    except:
-        pass
-    return "Tier3", 10
+
+def infer_district(text: str) -> Optional[str]:
+    # Offline-only: match against local district list
+    df = load_india_context_df()
+    districts = df["district"].dropna().astype(str).tolist()
+    # try exact word match for the first ~2000 chars for speed
+    hay = text[:2000]
+    for d in districts:
+        if re.search(rf"(?i)\b{re.escape(d)}\b", hay):
+            return d
+    return None
+
+
+def parse_resume(file_path: str) -> ParsedResume:
+    """
+    Offline resume parsing. Uses only local processing and local CSVs.
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(file_path)
+
+    text = _extract_text(file_path)
+    college_name = extract_college(text)
+    district = infer_district(text)
+    college_tier = infer_college_tier(college_name)
+
+    return ParsedResume(
+        name=extract_name(text),
+        email=extract_email(text),
+        phone=extract_phone(text),
+        skills=extract_skills(text),
+        college_name=college_name,
+        college_tier=college_tier,
+        district=district,
+        cgpa=extract_cgpa(text),
+        projects_count=count_projects(text),
+        internships_count=count_internships(text),
+        certifications_count=count_certs(text),
+        rural_flag=infer_rural(text),
+        first_gen_flag=detect_first_gen(text),
+        raw_text_preview=text[:1200],
+    )
