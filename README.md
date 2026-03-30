@@ -1,5 +1,5 @@
 
-### HireGround
+# HireGround
 ## 📊 Key Features
 
 - ✅ **Real-world India context**: District job density, college tier mapping, rural/urban infra gaps
