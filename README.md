@@ -30,8 +30,9 @@ Final score → 85/100 → Shortlist #1
 | Explainability | None | **Passport per candidate** |
 
 ## 🛠️ Tech Stack
-Frontend: React + Tailwind + Chart.js
-Backend: FastAPI + scikit-learn
+Frontend: React + Tailwind CSS+ Chart.js 
+Backend: FastAPI + Python
+Database: PostgreSQL
 Fairness: Custom Opportunity Credit engine
 Context: India district/college opportunity indices
 Deployment: Docker + Vercel/Netlify
@@ -40,13 +41,8 @@ Deployment: Docker + Vercel/Netlify
 
 - **Resume features**: Synthetic + Kaggle hiring datasets
 - **Context layer**: District job density, college placement rates, rural/urban infra gaps
-- **Realism**: Mapped to actual India tier-1/2/3 colleges + census data
+- **Realism**: Mapped to actual Indian circumstances + census data
 
-## 📱 Lightweight Design
-
-✅ **Offline capable**: Context cells + credit params as lookup tables  
-✅ **Mobile-first**: Runs on mid-range Android  
-✅ **Low-resource**: GBT models + arithmetic ops only  
 
 ## 🎯 Problem Statement Deliverables ✓
 
@@ -65,7 +61,6 @@ Deployment: Docker + Vercel/Netlify
 hireground/
 ├── src/
 │ ├── core/ # Opportunity Credit engine
-│ ├── passports/ # Fairness Passport generator
 │ ├── context/ # India opportunity cells
 │ └── models/ # Baseline scorer + CEOS
 ├── frontend/ # React + Tailwind dashboard
