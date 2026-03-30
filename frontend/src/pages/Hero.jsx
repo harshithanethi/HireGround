@@ -208,7 +208,7 @@ export default function Hero() {
       <section className="bg-primary py-24" id="features">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card hoverEffect className="p-8 bg-white border-2 border-white">
+            <Card hoverEffect className="p-8 bg-white border-8 border-white">
               <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <Zap size={24} />
               </div>
@@ -240,7 +240,7 @@ export default function Hero() {
               <p className="text-gray-500 leading-relaxed">Every candidate gets a government-grade report explaining exactly how their score was calculated.</p>
             </Card>
 
-            <Card hoverEffect className="p-8 bg-white border-2 border-primary">
+            <Card hoverEffect className="p-8 bg-white border-8 border-primary">
               <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <ArrowUp size={24} />
               </div>
@@ -248,7 +248,7 @@ export default function Hero() {
               <p className="text-gray-500 leading-relaxed">Compare standard raw LLM outputs against CEOS adjusted scoring right in the dashboard.</p>
             </Card>
 
-            <Card hoverEffect className="p-8 bg-white border-2 border-primary">
+            <Card hoverEffect className="p-8 bg-white border-8 border-primary">
               <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <CheckCircle2 size={24} />
               </div>
