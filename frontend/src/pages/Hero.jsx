@@ -32,7 +32,7 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-xl text-gray-700 max-w-2xl leading-relaxed font-medium mb-10"
             >
-              HireGround's CEOS model corrects for rural infrastructure gaps, college tier inequity, and district job scarcity — giving every resume a fair, explainable score.
+              HireGround's CEOS model corrects for rural infrastructure gaps, college tier inequity, and district job scarcity giving every resume a fair, explainable score.
             </motion.p>
           </div>
         </div>
@@ -48,7 +48,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="lg:col-span-2 grid sm:grid-cols-2 gap-6 items-stretch"
           >
-            <Card hoverEffect className="p-6 h-full">
+            <Card hoverEffect className="p-6 h-full border-2 border-primary">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="font-bold text-lg">Priya Sharma</h3>
@@ -67,7 +67,7 @@ export default function Hero() {
               </div>
             </Card>
 
-            <Card hoverEffect className="p-6 bg-gray-50/50 h-full">
+            <Card hoverEffect className="p-6 bg-gray-50/50 border-2 border-primary h-full">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="font-bold text-lg text-gray-900">Rahul V.</h3>
@@ -86,7 +86,7 @@ export default function Hero() {
             </Card>
           </motion.div>
 
-          <Card hoverEffect className="p-6 bg-gray-50/50 h-full">
+          <Card hoverEffect className="p-6 bg-gray-50/50 border-2 border-primary h-full">
             <h3 className="font-bold text-lg text-gray-900 mb-4">
               Stop letting keywords decide shortlists.
             </h3>
@@ -205,54 +205,54 @@ export default function Hero() {
       </section>
 
       {/* SECTION 5 - FEATURE BENTO */}
-      <section className="bg-gray-50 py-24" id="features">
+      <section className="bg-primary py-24" id="features">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card hoverEffect className="p-8">
-              <div className="w-12 h-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center mb-6">
+            <Card hoverEffect className="p-8 bg-white border-2 border-white">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <Zap size={24} />
               </div>
-              <h3 className="font-bold text-xl mb-3">Opportunity Credit Engine</h3>
+              <h3 className="font-bold text-xl mb-3 text-gray-900">Opportunity Credit Engine</h3>
               <p className="text-gray-500 leading-relaxed">Dynamically adds localized credit points to baseline scores based on structural disadvantages.</p>
             </Card>
 
-            <Card hoverEffect className="p-8">
+            <Card hoverEffect className="p-8 bg-white border-8 border-primary">
               <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <MapPin size={24} />
               </div>
-              <h3 className="font-bold text-xl mb-3">India-Specific Context</h3>
+              <h3 className="font-bold text-xl mb-3 text-gray-900">India-Specific Context</h3>
               <p className="text-gray-500 leading-relaxed">Powered by DPIIT index, TRAI broadband statistics, and NIRF college tier mappings.</p>
             </Card>
 
-            <Card hoverEffect className="p-8">
-              <div className="w-12 h-12 rounded-xl bg-positive/10 text-positive flex items-center justify-center mb-6">
+            <Card hoverEffect className="p-8 bg-white border-8 border-primary">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <Shield size={24} />
               </div>
-              <h3 className="font-bold text-xl mb-3">Bias-Safe & Compliant</h3>
+              <h3 className="font-bold text-xl mb-3 text-gray-900">Bias-Safe & Compliant</h3>
               <p className="text-gray-500 leading-relaxed">Relies strictly on environmental signals. No demographic factors like gender or religion are extracted.</p>
             </Card>
 
-            <Card hoverEffect className="p-8">
-              <div className="w-12 h-12 rounded-xl bg-positive/10 text-positive flex items-center justify-center mb-6">
+            <Card hoverEffect className="p-8 bg-white border-8 border-primary">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <FileText size={24} />
               </div>
-              <h3 className="font-bold text-xl mb-3">Fairness Passport</h3>
+              <h3 className="font-bold text-xl mb-3 text-gray-900">Fairness Passport</h3>
               <p className="text-gray-500 leading-relaxed">Every candidate gets a government-grade report explaining exactly how their score was calculated.</p>
             </Card>
 
-            <Card hoverEffect className="p-8">
+            <Card hoverEffect className="p-8 bg-white border-2 border-primary">
               <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <ArrowUp size={24} />
               </div>
-              <h3 className="font-bold text-xl mb-3">Side-by-side Impact</h3>
+              <h3 className="font-bold text-xl mb-3 text-gray-900">Side-by-side Impact</h3>
               <p className="text-gray-500 leading-relaxed">Compare standard raw LLM outputs against CEOS adjusted scoring right in the dashboard.</p>
             </Card>
 
-            <Card hoverEffect className="p-8">
-              <div className="w-12 h-12 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center mb-6">
+            <Card hoverEffect className="p-8 bg-white border-2 border-primary">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <CheckCircle2 size={24} />
               </div>
-              <h3 className="font-bold text-xl mb-3">Offline Edge Capable</h3>
+              <h3 className="font-bold text-xl mb-3 text-gray-900">Offline Edge Capable</h3>
               <p className="text-gray-500 leading-relaxed">Runs effectively in low bandwidth Indian areas, synchronizing batch scores natively.</p>
             </Card>
           </div>
