@@ -1,40 +1,27 @@
-from fastapi import APIRouter
-from app.schemas import ScoreRequest, ScoreResponse, CandidateScoreResult
-from app.services.scorer import calculate_baseline_score
-from app.services.context import calculate_context_adjustment
-from app.services.explain import generate_explanation
+from fastapi import UploadFile, File
+from services.parser import parse_resume
 
-router = APIRouter()
+@app.post("/api/parse-resume")
+async def parse_endpoint(file: UploadFile = File(...)):
+    """NEW: Parse → returns structured data for your scorer"""
+    contents = await file.read()
+    with open(f"/tmp/{file.filename}", "wb") as f:
+        f.write(contents)
+    parsed = parse_resume(f"/tmp/{file.filename}")
+    return parsed
 
-
-@router.post("/score-candidate", response_model=ScoreResponse)
-def score_candidate(payload: ScoreRequest):
-    candidate = payload.candidate
-    job = payload.job
-
-    baseline_score = calculate_baseline_score(candidate, job)
-    context_adjustment, context_reasons = calculate_context_adjustment(candidate)
-    final_score = round(min(baseline_score + context_adjustment, 100), 2)
-
-    explanation = generate_explanation(
-        candidate=candidate,
-        job=job,
-        baseline_score=baseline_score,
-        context_adjustment=context_adjustment,
-        final_score=final_score,
-        context_reasons=context_reasons,
-    )
-
-    result = CandidateScoreResult(
-        candidate_id=candidate.id,
-        candidate_name=candidate.name,
-        baseline_score=baseline_score,
-        context_adjustment=context_adjustment,
-        final_score=final_score,
-        explanation=explanation,
-        baseline_rank=1,
-        final_rank=1,
-        rank_shift=0,
-    )
-
-    return ScoreResponse(result=result)
+@app.post("/api/score-candidate")
+async def score_candidate(request: CandidateRequest, file: UploadFile = File(None)):
+    if file:  # Auto-parse
+        parsed = parse_resume(file_path)
+        baseline = baseline_score(parsed)  # YOUR existing scorer
+        adjustment, explain = get_opportunity_credit(parsed)  # YOUR context
+    else:  # Manual input fallback
+        baseline = baseline_score(request.parsed_data)
+    
+    return {
+        "baseline": baseline,
+        "adjustment": adjustment,
+        "final": min(100, baseline + adjustment),
+        "passport": generate_passport(parsed, explain)
+    }

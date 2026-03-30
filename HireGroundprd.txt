@@ -1,0 +1,207 @@
+HireGround: Product Requirements Document (PRD)
+
+📋 Executive Summary
+
+HireGround delivers context-aware resume screening that eliminates institutional bias by normalizing candidate scores based on real-world opportunity gaps. Unlike uniform models favoring metro candidates, HireGround provides equitable shortlisting while maintaining hiring quality.
+
+Core Value: Transform raw skills evaluation into opportunity-adjusted fairness.
+🎯 Problem Statement
+
+Traditional resume screeners apply uniform standards, systematically disadvantaging candidates from low-opportunity backgrounds:
+
+Metro Tier-1 Candidate: Elite internships → Score: 85 → Shortlist
+Tier-3 Rural Candidate: Equivalent skills, limited exposure → Score: 65 → Rejected
+
+Root Cause: One-size-fits-all evaluation ignores structural disparities in access, education quality, and job markets.
+👥 Target Users & Personas
+Persona	Role	Key Need
+HR Recruiter	Corporate/Startups	Diverse shortlists without quality compromise
+Startup CTO	Tech hiring	Bias audits + compliance safety
+Hackathon Judge	Academic/Industry	Quantified fairness metrics + working demo
+🎮 Core Features
+1. Resume Parsing
+
+Input: PDF/DOCX resume
+Output: Structured candidate profile
+
+Extracts: skills, college, location, CGPA, projects, internships, certifications
+
+2. Dual Scoring Pipeline
+
+Baseline Score: Skills + Experience + Education = X/100
+Context Adjustment: Opportunity-based credits = +Y points
+Final Score: min(100, Baseline + Adjustment)
+
+3. Side-by-Side Comparison
+
+Batch analytics showing uniform vs. equitable outcomes
+4. Fairness Passport
+
+Per-candidate explainability:
+
+"Baseline: 72 → Final: 85 (+13 credit)"
+Breakdown: "Tier-3 college (+8), Rural district (+5)"
+
+5. Batch Processing
+
+Upload 100+ resumes → Group fairness metrics + ranking shifts
+
+
+🗄️ Data Model (Pydantic Schemas)
+ParsedResume
+
+python
+class ParsedResume(BaseModel):
+    candidate_id: str
+    skills: List[str]                    # ["Python", "React", "Docker"]
+    college: str                         # "Example Engineering College"
+    college_tier: Literal["Tier1", "Tier2", "Tier3"]
+    district: str                        # "District Name"
+    cgpa: float                          # 8.2
+    projects: int                        # 3
+    internships: int                     # 2
+    certifications: int                  # 4
+    first_gen_learner: bool              # True/False
+    rural_background: bool               # True/False
+    total_experience_months: int         # 18
+
+CandidateScore
+
+python
+class CandidateScore(BaseModel):
+    candidate_id: str
+    baseline_score: float                # Uniform model: 72.5
+    context_adjustment: int              # Opportunity credits: +13
+    final_score: float                   # Equitable score: 85.5
+    rank_uniform: Optional[int]          # Batch rank without context
+    rank_final: Optional[int]            # Batch rank with context
+    fairness_passport: FairnessPassport
+
+FairnessPassport
+
+python
+class FairnessPassport(BaseModel):
+    baseline_score: float
+    total_adjustment: int
+    adjustment_breakdown: List[str]      # ["Tier-3 college (+8)", "Rural district (+5)"]
+    rank_shift: Optional[str]            # "15 → 3"
+    ceos_group_score: float              # Contextual Equity Score: 87.2
+
+BatchAnalytics
+
+python
+class BatchAnalytics(BaseModel):
+    total_candidates: int
+    shortlist_threshold: float           # 80.0
+    uniform_shortlist_count: int
+    equitable_shortlist_count: int
+    rural_representation_uniform: float  # 12.5%
+    rural_representation_equitable: float # 28.3%
+    ceos_score: float                    # 87.2
+    top_talent_preservation: float       # 94.5%
+
+ContextData (CSV Structure)
+
+text
+district,job_opportunity_index,college_infrastructure_index,rural_infrastructure_index
+District A,8.2,0.85,0.72
+District B,4.5,0.68,0.55
+District C,2.1,0.45,0.38
+
+🛠️ Technical Requirements
+Functional Requirements
+
+    Resume Upload: Support PDF/DOCX (max 5MB)
+
+    Auto-parsing: 90%+ accuracy on Indian resumes
+
+    Real-time scoring: <3s per resume
+
+    Batch processing: 100+ resumes simultaneously
+
+    Export: CSV/JSON with passports
+
+Non-Functional Requirements
+Category	Specification
+Performance	<3s single resume, 100/minute batch
+Scalability	10k resumes/day
+Availability	99.5% uptime
+Data Privacy	No PII storage beyond session
+Offline	CSV-based context lookups
+📊 Success Metrics
+Metric	Target	Measurement
+Parsing Accuracy	≥90%	Manual audit of 50 resumes
+Rural Representation Gain	≥2x	Batch A/B testing
+Top Talent Preservation	≥94%	Uniform vs. final score correlation
+CEOS Score	≥85	Contextual equity metric
+User Satisfaction	4.5/5	Hackathon judge feedback
+🔌 API Specification
+
+text
+POST /api/v1/parse-resume
+  → UploadFile → ParsedResume
+
+POST /api/v1/score-single  
+  → ParsedResume + JobDescription → CandidateScore
+
+POST /api/v1/score-batch
+  → List[UploadFile] → BatchAnalytics + List[CandidateScore]
+
+GET /api/v1/health
+  → SystemStatus
+
+GET /api/v1/context-stats
+  → District opportunity distribution
+
+🎨 User Interface Requirements
+Dashboard Views
+
+    Single Upload: Drag-drop → Instant passport
+
+    Batch Upload: Progress bar → Summary table
+
+    Comparison Table: Uniform vs. Equitable rankings
+
+    Fairness Metrics: CEOS gauge + rural share delta
+
+    Passport Modal: Detailed breakdown per candidate
+
+Key Visualizations
+
+text
+- Side-by-side ranking tables
+- Rural representation before/after
+- District opportunity heatmap  
+- CEOS fairness score (0-100)
+
+🗓️ Implementation Phases
+Phase	Deliverables	Timeline
+Phase	Deliverables	Timeline
+Phase 1	Parser + Single scoring	Day 1 (4h)
+Phase 2	Batch processing + CEOS	Day 1 (4h)
+Phase 3	React dashboard + Charts	Day 2 (6h)
+Phase 4	Polish + Demo prep	Day 2 (2h)
+⚠️ Risks & Mitigations
+Risk	Mitigation
+Parsing fails on tables/images	Multi-format fallback (PDF/DOCX/txt)
+Context data staleness	Annual CSV refresh process
+Over-adjustment	Hard caps on total credits (max +25)
+Legal scrutiny	No demographic proxies, auditable logic
+📈 Business Impact
+
+text
+For Companies:
+✅ 2x larger talent pool access
+✅ 20% faster screening cycles  
+✅ Zero bias litigation risk
+✅ 35% diverse team innovation boost
+
+For Candidates:
+✅ Opportunity-normalized evaluation
+✅ Transparent decision rationale
+✅ Fair chance regardless of geography
+
+
+USP LIST:
+
+
