@@ -1,13 +1,20 @@
 import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 export default function Navbar() {
   return (
     <nav className="bg-gray-900 text-white px-6 py-4 flex justify-between items-center border-b border-gray-700">
-      
-      {/* Logo */}
-      <h1 className="text-xl font-bold text-teal-400">
-        HireGround
-      </h1>
+
+      {/* Logo + Back */}
+      <div className="flex items-center gap-4">
+        <Link to="/" className="flex items-center gap-1 text-white/60 hover:text-teal-400 text-sm transition">
+          <ArrowLeft size={16} />
+          Back to Home
+        </Link>
+        <h1 className="text-xl font-bold text-teal-400">
+          HireGround
+        </h1>
+      </div>
 
       {/* Links */}
       <div className="flex items-center gap-6 text-sm">
@@ -18,15 +25,15 @@ export default function Navbar() {
 
         {/* Auth Section */}
         <div className="flex items-center gap-3 ml-6">
-          <Link 
-            to="/login" 
+          <Link
+            to="/login"
             className="text-white/60 hover:text-white"
           >
             Login
           </Link>
 
-          <Link 
-            to="/signup" 
+          <Link
+            to="/signup"
             className="bg-[#f59e0b] px-4 py-1.5 rounded-lg text-black font-semibold hover:bg-[#d97706] transition"
           >
             Sign Up

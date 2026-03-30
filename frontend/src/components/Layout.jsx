@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Outlet } from "react-router-dom"
+import { Outlet, Link } from "react-router-dom"
 import { Sidebar } from "./Sidebar"
 import { Menu } from "lucide-react"
 import { AnimatePresence } from "framer-motion"
@@ -8,7 +8,7 @@ export function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900 overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900 overflow-x-hidden">
       {/* App Header */}
       <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 z-40 flex items-center px-4 md:px-6 justify-between shadow-sm">
         <div className="flex items-center gap-4">
@@ -20,12 +20,12 @@ export function Layout() {
             <Menu size={24} />
           </button>
           
-          <div className="flex items-center gap-2 group cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+          <Link to="/" className="flex items-center gap-2 group cursor-pointer" title="Return to Home Page">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-black text-xs shadow-md shadow-primary/20">
               H
             </div>
             <span className="text-gray-900 font-extrabold tracking-tight text-lg">HireGround</span>
-          </div>
+          </Link>
         </div>
         
         <div className="flex items-center gap-3">
@@ -43,8 +43,7 @@ export function Layout() {
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       {/* Main Content Area */}
-      {/* Keep full height and scrollable for the stacked cards effect */}
-      <main className="flex-1 w-full bg-gray-50">
+      <main className="flex-1 w-full bg-gray-50 pt-24 pb-12 overflow-y-auto">
         <AnimatePresence mode="wait">
            <Outlet />
         </AnimatePresence>

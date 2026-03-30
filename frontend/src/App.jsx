@@ -8,7 +8,10 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 
 // App Pages
-import MainApp from './pages/MainApp'
+import CandidateUpload from './pages/CandidateUpload'
+import { CandidateSummary } from './components/CandidateSummary'
+import { EvaluationSection } from './components/EvaluationSection'
+import Analytics from './pages/Analytics'
 
 function AppContent() {
   const location = useLocation();
@@ -23,12 +26,13 @@ function AppContent() {
         
         {/* App routes (With Sidebar) */}
         <Route element={<Layout />}>
-          <Route path="/app" element={<MainApp />} />
-          {/* Legacy redirects */}
-          <Route path="/dashboard" element={<Navigate to="/app" replace />} />
-          <Route path="/upload" element={<Navigate to="/app" replace />} />
-          <Route path="/compare" element={<Navigate to="/app" replace />} />
-          <Route path="/analytics" element={<Navigate to="/app" replace />} />
+          <Route path="/app" element={<Navigate to="/upload" replace />} />
+          <Route path="/dashboard" element={<Navigate to="/candidate" replace />} />
+          
+          <Route path="/upload" element={<CandidateUpload />} />
+          <Route path="/candidate" element={<CandidateSummary />} />
+          <Route path="/evaluation" element={<EvaluationSection />} />
+          <Route path="/insights" element={<Analytics />} />
         </Route>
       </Routes>
     </AnimatePresence>

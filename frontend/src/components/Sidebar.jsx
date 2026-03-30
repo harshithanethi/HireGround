@@ -1,29 +1,18 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { UploadCloud, Users, Star, BarChart2, LogOut, X } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 export function Sidebar({ isOpen, setIsOpen }) {
-  // Setup smooth scroll observer to highlight active links if desired
-  // For now, simpler implementation: standard anchor links
+  const location = useLocation();
   
   const navLinks = [
-    { to: '#upload', label: 'Upload', icon: UploadCloud },
-    { to: '#candidate', label: 'Candidate', icon: Users },
-    { to: '#evaluation', label: 'Evaluation', icon: Star },
-    { to: '#insights', label: 'Insights', icon: BarChart2 },
+    { to: '/upload', label: 'Upload', icon: UploadCloud },
+    { to: '/candidate', label: 'Candidate', icon: Users },
+    { to: '/evaluation', label: 'Evaluation', icon: Star },
+    { to: '/insights', label: 'Insights', icon: BarChart2 },
   ]
-
-  // Handle smooth scroll clicks manually since router <Link> might not handle `#` nicely in this specific Single Page App scenario if mounted on `/app`
-  const scrollTo = (e, targetId) => {
-    e.preventDefault();
-    const target = document.querySelector(targetId);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsOpen(false);
-  }
 
   // Prevent scroll when drawer is open
   useEffect(() => {
@@ -76,15 +65,20 @@ export function Sidebar({ isOpen, setIsOpen }) {
             <nav className="flex-1 px-4 space-y-2">
               {navLinks.map((link) => {
                 const Icon = link.icon;
+                const isActive = location.pathname.startsWith(link.to);
                 return (
-                  <button
+                  <Link
                     key={link.to}
-                    onClick={(e) => scrollTo(e, link.to)}
-                    className="w-full relative flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold text-gray-500 hover:text-primary hover:bg-primary/5 transition-all group"
+                    to={link.to}
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "relative flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold transition-all group",
+                      isActive ? "bg-primary/10 text-primary" : "text-gray-500 hover:text-primary hover:bg-primary/5"
+                    )}
                   >
-                    <Icon size={20} className="relative z-10 text-gray-400 group-hover:text-primary transition-colors" />
+                    <Icon size={20} className={cn("relative z-10 transition-colors", isActive ? "text-primary" : "text-gray-400 group-hover:text-primary")} />
                     <span className="relative z-10">{link.label}</span>
-                  </button>
+                  </Link>
                 )
               })}
             </nav>
