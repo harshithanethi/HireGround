@@ -1,0 +1,62 @@
+[
+  {
+    "id": "c1",
+    "name": "Aarav",
+    "skills": ["python", "sql", "fastapi"],
+    "projects_count": 2,
+    "internships_count": 1,
+    "cgpa": 8.9,
+    "certifications_count": 1,
+    "achievements_count": 1,
+    "college_tier": 1,
+    "location_type": "urban",
+    "internet_access": "good",
+    "financial_constraints": false,
+    "first_generation_student": false
+  },
+  {
+    "id": "c2",
+    "name": "Meera",
+    "skills": ["python", "react", "sqlite"],
+    "projects_count": 4,
+    "internships_count": 0,
+    "cgpa": 8.1,
+    "certifications_count": 1,
+    "achievements_count": 2,
+    "college_tier": 4,
+    "location_type": "rural",
+    "internet_access": "low",
+    "financial_constraints": true,
+    "first_generation_student": true
+  },
+  {
+    "id": "c3",
+    "name": "Rohan",
+    "skills": ["java", "sql"],
+    "projects_count": 1,
+    "internships_count": 2,
+    "cgpa": 9.2,
+    "certifications_count": 0,
+    "achievements_count": 1,
+    "college_tier": 2,
+    "location_type": "urban",
+    "internet_access": "good",
+    "financial_constraints": false,
+    "first_generation_student": false
+  },
+  {
+    "id": "c4",
+    "name": "Kavya",
+    "skills": ["python", "react", "fastapi"],
+    "projects_count": 3,
+    "internships_count": 0,
+    "cgpa": 7.9,
+    "certifications_count": 2,
+    "achievements_count": 1,
+    "college_tier": 3,
+    "location_type": "rural",
+    "internet_access": "moderate",
+    "financial_constraints": true,
+    "first_generation_student": false
+  }
+]
