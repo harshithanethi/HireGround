@@ -41,14 +41,14 @@ export default function Hero() {
         <div className="h-px w-full bg-gray-100 my-16" />
 
         {/* Product Showcase Mosaic */}
-        <div className="grid lg:grid-cols-3 gap-8 items-start">
+        <div className="grid lg:grid-cols-3 gap-8 items-stretch">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="lg:col-span-2 grid sm:grid-cols-2 gap-6"
+            className="lg:col-span-2 grid sm:grid-cols-2 gap-6 items-stretch"
           >
-            <Card hoverEffect className="p-6">
+            <Card hoverEffect className="p-6 h-full">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="font-bold text-lg">Priya Sharma</h3>
@@ -67,7 +67,7 @@ export default function Hero() {
               </div>
             </Card>
 
-            <Card hoverEffect className="p-6 bg-gray-50/50">
+            <Card hoverEffect className="p-6 bg-gray-50/50 h-full">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="font-bold text-lg text-gray-900">Rahul V.</h3>
@@ -86,24 +86,23 @@ export default function Hero() {
             </Card>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="lg:col-span-1"
-          >
-            <h2 className="text-2xl font-black text-gray-900 leading-tight mb-4">
-              Stop letting zip codes decide shortlists.
-            </h2>
+          <Card hoverEffect className="p-6 bg-gray-50/50 h-full">
+            <h3 className="font-bold text-lg text-gray-900 mb-4">
+              Stop letting keywords decide shortlists.
+            </h3>
             <p className="text-gray-600 mb-8 max-w-sm">
               Our Opportunity Credit engine maps applicants to real-world socio-economic data (DPIIT, NIRF) instantly. Find hidden gems structurally disadvantaged by standard AI parsers.
             </p>
-            <Link to="/dashboard">
-              <Button size="lg" className="w-full sm:w-auto shadow-lg shadow-primary/20">
-                Start Screening →
-              </Button>
-            </Link>
-          </motion.div>
+          </Card>
+        </div>
+
+        {/* BUTTON BELOW ALL CARDS */}
+        <div className="flex justify-center mt-12">
+          <Link to="/app">
+            <Button variant="primary" size="lg" className="rounded-full px-10 shadow-xl">
+              Launch Platform
+            </Button>
+          </Link>
         </div>
       </section>
 

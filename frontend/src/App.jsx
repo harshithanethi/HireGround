@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { Layout } from './components/Layout'
 
@@ -8,11 +8,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 
 // App Pages
-import RecruiterDashboard from './pages/RecruiterDashboard'
-import CandidateUpload from './pages/CandidateUpload'
-import ComparisonView from './pages/ComparisonView'
-import FairnessPassport from './pages/FairnessPassport'
-import Analytics from './pages/Analytics'
+import MainApp from './pages/MainApp'
 
 function AppContent() {
   const location = useLocation();
@@ -27,11 +23,12 @@ function AppContent() {
         
         {/* App routes (With Sidebar) */}
         <Route element={<Layout />}>
-          <Route path="/dashboard" element={<RecruiterDashboard />} />
-          <Route path="/upload" element={<CandidateUpload />} />
-          <Route path="/compare" element={<ComparisonView />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/passport/:id" element={<FairnessPassport />} />
+          <Route path="/app" element={<MainApp />} />
+          {/* Legacy redirects */}
+          <Route path="/dashboard" element={<Navigate to="/app" replace />} />
+          <Route path="/upload" element={<Navigate to="/app" replace />} />
+          <Route path="/compare" element={<Navigate to="/app" replace />} />
+          <Route path="/analytics" element={<Navigate to="/app" replace />} />
         </Route>
       </Routes>
     </AnimatePresence>

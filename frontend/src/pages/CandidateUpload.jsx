@@ -21,7 +21,7 @@ export default function CandidateUpload() {
   }
 
   const finish = () => {
-    navigate('/dashboard')
+    document.querySelector('#candidate')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const variants = {
