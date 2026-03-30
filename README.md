@@ -1,14 +1,5 @@
 
-### Core Primitives
-1. **Opportunity Credits**: `final_score = baseline + g(context_deficit, effort)`
-2. **Context Cells**: Clusters of similar opportunity environments (5-10 cells)
-3. **Fairness Passports**: JSON receipts travel with decisions
-4. **CEOS**: Monitors fairness per cell, adapts credits dynamically
-
-## 🚀 Live Demo
-
-**[Try HireGround](https://fairbridge-demo.netlify.app)** - Upload any resume, see uniform vs context-aware decisions side-by-side
-
+### HireGround
 ## 📊 Key Features
 
 - ✅ **Real-world India context**: District job density, college tier mapping, rural/urban infra gaps
@@ -63,7 +54,7 @@ Deployment: Docker + Vercel/Netlify
 - [x] **Context integration**: District/college opportunity signals
 - [x] **Side-by-side comparison**: Uniform vs FairBridge outcomes
 - [x] **Explanation mechanism**: Individual Fairness Passports
-- [x] **Brownie points**:
+- [x] **Other Deliverables**:
   - Bias-safe personalization ✓
   - India-focused data ✓
   - Adaptive fairness scoring (CEOS) ✓
