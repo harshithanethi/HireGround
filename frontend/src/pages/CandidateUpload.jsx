@@ -9,7 +9,7 @@ export default function CandidateUpload() {
   const [step, setStep] = useState(1)
   const [direction, setDirection] = useState(1) // 1 for forward, -1 for backward
   const navigate = useNavigate()
-  
+
   const resumeInputRef = useRef(null);
   const certInputRef = useRef(null);
 
@@ -48,14 +48,14 @@ export default function CandidateUpload() {
           <div className="hidden sm:flex bg-gray-100 p-1.5 rounded-full items-center">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className={`flex items-center text-sm font-bold px-3 py-1.5 rounded-full transition-colors ${step >= i ? 'bg-white shadow-sm text-primary' : 'text-gray-400'}`}>
-                {step > i ? <CheckCircle2 size={16} className="mr-1"/> : <span className="mr-1">{i}.</span>}
-                {i === 1 ? 'Info' : i === 2 ? 'Context' : i === 3 ? 'Resume' : i === 4 ? 'Cert' : 'Review'}
+                {step > i ? <CheckCircle2 size={16} className="mr-1" /> : <span className="mr-1">{i}.</span>}
+                {i === 1 ? 'Info' : i === 2 ? 'Context' : i === 3 ? 'Resume' : i === 4 ? 'Income' : 'Review'}
               </div>
             ))}
           </div>
         </div>
         <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-          <motion.div 
+          <motion.div
             className="h-full bg-primary rounded-full transition-all duration-300"
             style={{ width: `${(step / 5) * 100}%` }}
           />
@@ -81,7 +81,7 @@ export default function CandidateUpload() {
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Full Name</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Aarav Nair" defaultValue="Aarav Nair"/>
+                    <input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Aarav Nair" defaultValue="Aarav Nair" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
@@ -89,11 +89,11 @@ export default function CandidateUpload() {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Role Applied For</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Frontend Engineer" defaultValue="Frontend Engineer"/>
+                    <input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Frontend Engineer" defaultValue="Frontend Engineer" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Years of Experience</label>
-                    <input type="number" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="3" defaultValue="3"/>
+                    <input type="number" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="3" defaultValue="3" />
                   </div>
                 </div>
               </motion.div>
@@ -165,7 +165,7 @@ export default function CandidateUpload() {
 
                 <input type="file" className="hidden" ref={resumeInputRef} onChange={(e) => setResumeFile(e.target.files[0])} accept=".pdf,.docx,.doc" />
 
-                <div 
+                <div
                   onClick={() => resumeInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-2xl flex-1 flex flex-col items-center justify-center p-12 transition-colors cursor-pointer group
                     ${resumeFile ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-primary/50 bg-gray-50'}
@@ -208,7 +208,7 @@ export default function CandidateUpload() {
 
                 <input type="file" className="hidden" ref={certInputRef} onChange={(e) => setCertFile(e.target.files[0])} accept=".pdf,.jpg,.jpeg,.png" />
 
-                <div 
+                <div
                   onClick={() => certInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-2xl flex-1 flex flex-col items-center justify-center p-12 transition-colors cursor-pointer group
                     ${certFile ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-primary/50 bg-gray-50'}
@@ -263,19 +263,19 @@ export default function CandidateUpload() {
 
                 <div className="mt-8 flex flex-col gap-3 mx-auto max-w-md">
                   <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl text-left border border-gray-100">
-                     <File className="text-gray-400" />
-                     <div>
-                       <div className="font-bold text-gray-900 line-clamp-1">{resumeFile ? resumeFile.name : 'aarav_nair_resume.pdf'}</div>
-                       <div className="text-xs text-gray-500">Resume • Parsed offline</div>
-                     </div>
+                    <File className="text-gray-400" />
+                    <div>
+                      <div className="font-bold text-gray-900 line-clamp-1">{resumeFile ? resumeFile.name : 'aarav_nair_resume.pdf'}</div>
+                      <div className="text-xs text-gray-500">Resume • Parsed offline</div>
+                    </div>
                   </div>
                   {certFile && (
                     <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl text-left border border-gray-100">
-                       <File className="text-gray-400" />
-                       <div>
-                         <div className="font-bold text-gray-900 line-clamp-1">{certFile.name}</div>
-                         <div className="text-xs text-gray-500">Income Certificate • Verified locally</div>
-                       </div>
+                      <File className="text-gray-400" />
+                      <div>
+                        <div className="font-bold text-gray-900 line-clamp-1">{certFile.name}</div>
+                        <div className="text-xs text-gray-500">Income Certificate • Verified locally</div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -289,7 +289,7 @@ export default function CandidateUpload() {
           <Button variant="ghost" onClick={prevStep} disabled={step === 1} className={step === 1 ? 'opacity-0' : ''}>
             Back
           </Button>
-          
+
           {step < 5 ? (
             <Button onClick={nextStep} className="gap-2 px-8">
               Next Step <ChevronRight size={16} />
