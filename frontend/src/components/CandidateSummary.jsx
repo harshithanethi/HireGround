@@ -1,7 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
-import { User, MapPin, GraduationCap, Building } from 'lucide-react';
+import { User, MapPin, GraduationCap, Building, ArrowRight } from 'lucide-react';
 
 export function CandidateSummary() {
+  const navigate = useNavigate();
+
   return (
     <div className="h-full flex flex-col pt-8 px-6 md:px-12 w-full max-w-5xl mx-auto">
       <div className="mb-8">
@@ -17,7 +20,7 @@ export function CandidateSummary() {
           <div className="flex-1">
             <h3 className="text-2xl font-black text-gray-900 tracking-tight">Aarav Nair</h3>
             <p className="text-primary font-bold mb-4">Applying for: Frontend Engineer</p>
-            
+
             <div className="grid grid-cols-2 gap-y-3 text-sm">
               <div className="flex items-center gap-2 text-gray-600 font-medium">
                 <MapPin size={16} className="text-gray-400" /> Wayanad, Kerala
@@ -47,12 +50,25 @@ export function CandidateSummary() {
       <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm flex-1">
         <h4 className="font-bold text-gray-900 mb-4">Contextual Insights</h4>
         <p className="text-gray-600 leading-relaxed mb-6">
-          Aarav demonstrates exceptional skill density in modern frontend technologies despite coming from a low-opportunity region. His baseline comparison with metro candidates shows a higher grit factor, having taught himself React and Node.js without formal institutional support. 
+          Aarav demonstrates exceptional skill density in modern frontend technologies despite coming from a low-opportunity region. His baseline comparison with metro candidates shows a higher grit factor, having taught himself React and Node.js without formal institutional support.
         </p>
-        <div className="flex gap-4">
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-3 mb-8">
           <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-600">High Grit Indicator</span>
           <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-600">Self-Driven Learner</span>
           <span className="px-3 py-1 bg-positive/10 text-positive rounded-full text-xs font-bold">+12% Opportunity Credit</span>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-100 pt-6 flex items-center justify-between">
+          <p className="text-sm text-gray-400 font-medium">Ready to review this candidate's evaluation breakdown?</p>
+          <button
+            onClick={() => navigate('/evaluation')}
+            className="flex items-center gap-2 bg-primary text-white font-bold px-5 py-2.5 rounded-xl hover:bg-red-700 active:scale-95 transition-all text-sm"
+          >
+            Proceed to Evaluation <ArrowRight size={16} />
+          </button>
         </div>
       </div>
     </div>

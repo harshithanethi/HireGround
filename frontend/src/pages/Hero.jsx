@@ -125,9 +125,14 @@ export default function Hero() {
               { num: 5, title: "Final CEOS", desc: "Fair, explainable rank" },
             ].map((step, idx) => (
               <div key={idx} className="relative z-10 flex md:flex-col items-start md:items-center gap-6 md:gap-4 mb-10 md:mb-0 md:w-1/5 text-left md:text-center px-4">
-                <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-white font-black text-xl shadow-lg shadow-primary/20 shrink-0">
+                <motion.div
+                  whileHover={{ scale: 1.25, boxShadow: "0 12px 32px rgba(220,38,38,0.35)" }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 15 }}
+                  className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-white font-black text-xl shadow-lg shadow-primary/20 shrink-0 cursor-pointer"
+                >
                   {step.num}
-                </div>
+                </motion.div>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">{step.title}</h4>
                   <p className="text-sm text-gray-500 leading-snug">{step.desc}</p>
