@@ -1,32 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --amber: #f59e0b;
-  --navy: #04050f;
+@layer base {
+  body {
+    @apply bg-white text-gray-900 font-sans antialiased;
+  }
 }
 
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: #04050f;
-  color: white;
-  font-family: 'DM Sans', sans-serif;
-  -webkit-font-smoothing: antialiased;
+/* Hide scrollbar for clean aesthetics */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
 }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
-
-::selection { background: rgba(245,158,11,0.25); color: white; }
-
-/* Offline badge pulse */
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+/* Selection */
+::selection {
+  background: rgba(220, 38, 38, 0.2);
+  color: #dc2626;
 }

@@ -1,220 +1,145 @@
-import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { Card } from '../components/ui/Card'
+import { ScoreRing } from '../components/ui/ScoreRing'
+import { Badge } from '../components/ui/Badge'
+import { Button } from '../components/ui/Button'
 import { Link } from 'react-router-dom'
-import { CANDIDATES } from '../data/mockData'
+import { Search, Filter, MoreHorizontal, FileText, ArrowUpRight, TrendingUp } from 'lucide-react'
 
-const STATUS = {
-  shortlisted: { dot: 'bg-emerald-400', text: 'text-emerald-400', bg: 'bg-emerald-400/8', border: 'border-emerald-400/15', label: 'Shortlisted' },
-  review: { dot: 'bg-yellow-400', text: 'text-yellow-400', bg: 'bg-yellow-400/8', border: 'border-yellow-400/15', label: 'In Review' },
-  new: { dot: 'bg-blue-400', text: 'text-blue-400', bg: 'bg-blue-400/8', border: 'border-blue-400/15', label: 'New' },
-}
-
-function CeosRing({ score }) {
-  const pct = Math.round(score * 100)
-  const r = 18, circ = 2 * Math.PI * r
-  const filled = circ * (score)
-  return (
-    <div className="relative w-14 h-14 flex items-center justify-center">
-      <svg className="absolute inset-0 -rotate-90" width="56" height="56" viewBox="0 0 56 56">
-        <circle cx="28" cy="28" r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
-        <circle cx="28" cy="28" r={r} fill="none"
-          stroke={score >= 0.8 ? '#34d399' : score >= 0.65 ? '#f59e0b' : '#f87171'}
-          strokeWidth="3" strokeLinecap="round"
-          strokeDasharray={`${filled} ${circ}`} />
-      </svg>
-      <span className="text-xs font-black text-white">{pct}</span>
-    </div>
-  )
-}
+// Dummy Data
+const DB_CANDIDATES = [
+  { id: '1', name: 'Aarav Nair', role: 'Frontend Engineer', district: 'Wayanad, KL', raw: 68, ceos: 89, credit: 21, rescued: true, tags: ['Rural', 'Tier-3', 'First-Gen'] },
+  { id: '2', name: 'Sneha Patel', role: 'Data Scientist', district: 'Ahmedabad, GJ', raw: 85, ceos: 87, credit: 2, rescued: false, tags: ['Urban', 'Tier-1'] },
+  { id: '3', name: 'Vikram Singh', role: 'Backend Engineer', district: 'Bikaner, RJ', raw: 62, ceos: 80, credit: 18, rescued: true, tags: ['Semi-Rural', 'Tier-2'] },
+  { id: '4', name: 'Rohan Gupta', role: 'Product Manager', district: 'Mumbai, MH', raw: 92, ceos: 92, credit: 0, rescued: false, tags: ['Metro', 'Tier-1'] },
+  { id: '5', name: 'Megha Reddy', role: 'UX Designer', district: 'Warangal, TG', raw: 71, ceos: 83, credit: 12, rescued: false, tags: ['Semi-Urban', 'Tier-2'] },
+  { id: '6', name: 'Kiran Das', role: 'DevOps Engineer', district: 'Purulia, WB', raw: 60, ceos: 75, credit: 15, rescued: true, tags: ['Rural', 'Tier-3'] },
+]
 
 export default function RecruiterDashboard() {
-  const [candidates, setCandidates] = useState(CANDIDATES)
-  const [filter, setFilter] = useState('all')
-  const [sort, setSort] = useState('contextScore')
-  const [search, setSearch] = useState('')
-  const [expanded, setExpanded] = useState(null)
-
-  const filtered = candidates
-    .filter(c => filter === 'all' || c.status === filter)
-    .filter(c => c.name.toLowerCase().includes(search.toLowerCase()) ||
-                 c.location.toLowerCase().includes(search.toLowerCase()) ||
-                 c.skills.some(s => s.toLowerCase().includes(search.toLowerCase())))
-    .sort((a, b) => b[sort] - a[sort])
-
-  const stats = [
-    { label: 'Total', value: candidates.length, color: 'text-white' },
-    { label: 'Shortlisted', value: candidates.filter(c=>c.status==='shortlisted').length, color: 'text-emerald-400' },
-    { label: 'Avg CEOS', value: (candidates.reduce((s,c)=>s+c.ceosScore,0)/candidates.length*100).toFixed(0)+'%', color: 'text-[#f59e0b]' },
-    { label: 'Rural shortlist', value: candidates.filter(c=>c.districtIndex<50&&c.status==='shortlisted').length, color: 'text-blue-400' },
-    { label: 'First-gen', value: candidates.filter(c=>c.firstGen).length, color: 'text-purple-400' },
-  ]
-
   return (
-    <div className="min-h-screen px-6 py-10">
-      <div className="max-w-6xl mx-auto">
-
-        {/* Header */}
-        <div className="flex items-start justify-between mb-8">
-          <div>
-            <p className="text-[10px] font-bold text-[#f59e0b]/60 uppercase tracking-widest mb-2">Recruiter View</p>
-            <h1 className="text-3xl font-black text-white tracking-tight">Candidate Pipeline</h1>
-            <p className="text-white/30 text-sm mt-1">Ranked by Opportunity Credit Score — fairness built in</p>
-          </div>
-          <Link to="/compare" className="px-4 py-2.5 rounded-xl bg-[#f59e0b] hover:bg-[#d97706] text-[#04050f] text-xs font-bold transition-all shadow-lg shadow-[#f59e0b]/10 flex items-center gap-2">
-            ⇄ Compare View
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Talent Pipeline</h1>
+          <p className="text-gray-500 font-medium mt-1">Review your latest processed applications.</p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" className="gap-2">
+            <Filter size={16} /> Filters
+          </Button>
+          <Link to="/upload">
+            <Button className="gap-2 shadow-lg shadow-primary/20">
+              Upload CV
+            </Button>
           </Link>
         </div>
+      </div>
 
-        {/* Stats bar */}
-        <div className="grid grid-cols-5 gap-3 mb-8">
-          {stats.map(s => (
-            <div key={s.label} className="bg-[#0a0b18] border border-white/5 rounded-2xl p-4">
-              <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1.5">{s.label}</p>
-              <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
+      {/* Summary Stat Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Evaluated', value: '142', sub: '+12 this week' },
+          { label: 'Avg CEOS Score', value: '78', sub: 'vs 65 Raw', isPrimary: true },
+          { label: 'Rescued Status', value: '28', sub: 'Pass threshold due to credits' },
+          { label: 'Total Credits', value: '+1,560', sub: 'Across pipeline' },
+        ].map((stat, i) => (
+          <Card key={i} className="p-5">
+            <div className="text-gray-500 font-bold text-xs uppercase tracking-wider mb-2">{stat.label}</div>
+            <div className={`text-3xl font-black tracking-tighter ${stat.isPrimary ? 'text-primary' : 'text-gray-900'}`}>
+              {stat.value}
             </div>
-          ))}
-        </div>
+            <div className="text-gray-400 flex items-center gap-1 font-medium mt-1 text-xs">
+              {stat.isPrimary && <TrendingUp size={12} className="text-positive" />}
+              {stat.sub}
+            </div>
+          </Card>
+        ))}
+      </div>
 
-        {/* Filters */}
-        <div className="flex items-center gap-3 mb-5 flex-wrap">
-          <input value={search} onChange={e=>setSearch(e.target.value)}
-            placeholder="Search name, location, skill..."
-            className="flex-1 min-w-48 bg-[#0a0b18] border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#f59e0b]/40 transition-all" />
+      {/* Filters */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 -mb-2 scrollbar-none">
+        <button className="px-4 py-1.5 rounded-full bg-gray-900 text-white font-bold text-sm whitespace-nowrap">All Candidates</button>
+        <button className="px-4 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 hover:text-gray-900 font-bold text-sm whitespace-nowrap">Rescued Candidates</button>
+        <button className="px-4 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 hover:text-gray-900 font-bold text-sm whitespace-nowrap">First-Gen Only</button>
+        <button className="px-4 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 hover:text-gray-900 font-bold text-sm whitespace-nowrap">Rural / Semi-Rural</button>
+      </div>
 
-          <div className="flex gap-1 bg-[#0a0b18] border border-white/5 rounded-xl p-1">
-            {['all','shortlisted','review'].map(f => (
-              <button key={f} onClick={()=>setFilter(f)}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold capitalize transition-all
-                  ${filter===f ? 'bg-[#f59e0b] text-[#04050f]' : 'text-white/25 hover:text-white/60'}`}>
-                {f}
-              </button>
-            ))}
-          </div>
-
-          <select value={sort} onChange={e=>setSort(e.target.value)}
-            className="bg-[#0a0b18] border border-white/8 rounded-xl px-3 py-2.5 text-xs text-white/60 focus:outline-none focus:border-[#f59e0b]/40 transition-all">
-            <option value="contextScore">Sort: Context Score</option>
-            <option value="uniformScore">Sort: Uniform Score</option>
-            <option value="opportunityCredit">Sort: Opportunity Credit</option>
-            <option value="ceosScore">Sort: CEOS</option>
-          </select>
-        </div>
-
-        {/* Table header */}
-        <div className="grid grid-cols-[2fr_1fr_80px_80px_80px_56px_40px] gap-3 px-4 mb-2">
-          {['Candidate', 'Skills', 'Uniform', 'Context', 'Credit', 'CEOS', ''].map(h => (
-            <p key={h} className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{h}</p>
-          ))}
-        </div>
-
-        {/* Rows */}
-        <div className="space-y-2">
-          {filtered.map((c, idx) => {
-            const st = STATUS[c.status]
-            const isEx = expanded === c.id
-            return (
-              <div key={c.id} className="bg-[#0a0b18] border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-all duration-200">
-                <div className="grid grid-cols-[2fr_1fr_80px_80px_80px_56px_40px] gap-3 items-center px-4 py-4">
-
-                  {/* Name + meta */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/15 flex items-center justify-center text-[#f59e0b] text-xs font-black flex-shrink-0">
-                      {c.name.split(' ').map(w=>w[0]).join('')}
+      {/* Grid */}
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {DB_CANDIDATES.map((cand, i) => (
+          <motion.div
+            key={cand.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: i * 0.05 }}
+          >
+            <Card hoverEffect className="relative h-full flex flex-col group">
+              {/* Rescued Stripe */}
+              {cand.rescued && (
+                <div className="absolute top-0 left-0 right-0 h-1 bg-primary" />
+              )}
+              
+              <div className="p-6 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-black text-gray-500 shadow-inner">
+                      {cand.name.split(' ').map(n => n[0]).join('')}
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-white text-sm font-bold">{c.name}</span>
-                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${st.bg} ${st.text} ${st.border} flex items-center gap-1`}>
-                          <span className={`w-1 h-1 rounded-full ${st.dot}`}/>
-                          {st.label}
-                        </span>
-                        {c.firstGen && <span className="text-[9px] text-purple-400/80 bg-purple-400/8 border border-purple-400/15 px-2 py-0.5 rounded-full">1st-gen</span>}
-                      </div>
-                      <p className="text-white/25 text-xs truncate">{c.location} · {c.experience}</p>
+                    <div>
+                      <h3 className="font-bold text-gray-900 leading-tight flex items-center gap-2">
+                        {cand.name}
+                        {cand.rescued && <span className="bg-primary/10 text-primary text-[10px] uppercase px-1.5 py-0.5 rounded font-black tracking-widest">Rescued</span>}
+                      </h3>
+                      <p className="text-xs font-semibold text-gray-500 mt-0.5">{cand.role}</p>
                     </div>
                   </div>
-
-                  {/* Skills */}
-                  <div className="flex flex-wrap gap-1">
-                    {c.skills.slice(0,3).map(s => (
-                      <span key={s} className="text-[9px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded">{s}</span>
-                    ))}
-                    {c.skills.length > 3 && <span className="text-[9px] text-white/20">+{c.skills.length-3}</span>}
-                  </div>
-
-                  {/* Uniform score */}
-                  <div>
-                    <div className="text-sm font-black text-white/50">{c.uniformScore}</div>
-                    <div className="mt-1 h-1 bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-white/20 rounded-full" style={{width:`${c.uniformScore}%`}} />
-                    </div>
-                  </div>
-
-                  {/* Context score */}
-                  <div>
-                    <div className="text-sm font-black text-[#f59e0b]">{c.contextScore}</div>
-                    <div className="mt-1 h-1 bg-[#f59e0b]/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#f59e0b] rounded-full" style={{width:`${c.contextScore}%`}} />
-                    </div>
-                  </div>
-
-                  {/* Credit */}
-                  <div className={`text-sm font-black ${c.opportunityCredit > 0 ? 'text-emerald-400' : 'text-white/30'}`}>
-                    {c.opportunityCredit > 0 ? `+${c.opportunityCredit}` : c.opportunityCredit}
-                  </div>
-
-                  {/* CEOS ring */}
-                  <CeosRing score={c.ceosScore} />
-
-                  {/* Expand */}
-                  <button onClick={()=>setExpanded(isEx?null:c.id)}
-                    className="w-8 h-8 rounded-lg bg-white/[0.03] hover:bg-white/8 flex items-center justify-center text-white/20 hover:text-white/60 transition-all">
-                    <span className={`text-xs transition-transform duration-200 ${isEx?'rotate-180':''}`}>▾</span>
+                  <button className="text-gray-400 hover:text-gray-900 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <MoreHorizontal size={20} />
                   </button>
                 </div>
 
-                {/* Expanded detail */}
-                {isEx && (
-                  <div className="border-t border-white/5 px-4 py-4 grid grid-cols-[1fr_auto] gap-6">
-                    <div>
-                      <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest mb-3">Context Factors</p>
-                      <div className="space-y-2">
-                        {c.contextFactors.map(f => (
-                          <div key={f.label} className="flex items-center gap-2">
-                            <span className="text-base">{f.icon}</span>
-                            <span className="text-xs text-white/50 flex-1">{f.label}</span>
-                            <span className={`text-xs font-bold ${f.weight.startsWith('+') ? 'text-emerald-400' : 'text-red-400'}`}>{f.weight} pts</span>
-                          </div>
-                        ))}
-                      </div>
-                      <p className="text-xs text-white/25 italic mt-3 leading-relaxed border-t border-white/5 pt-3">"{c.passportNote}"</p>
-                    </div>
-                    <div className="text-right space-y-3 flex-shrink-0">
-                      <div>
-                        <p className="text-[9px] text-white/20 uppercase tracking-widest">Context Rank</p>
-                        <p className="text-2xl font-black text-[#f59e0b]">#{c.rank.context}</p>
-                      </div>
-                      <div>
-                        <p className="text-[9px] text-white/20 uppercase tracking-widest">Uniform Rank</p>
-                        <p className="text-lg font-black text-white/30">#{c.rank.uniform}</p>
-                      </div>
-                      <Link to={`/passport/${c.id}`}
-                        className="block mt-3 px-3 py-2 rounded-lg bg-[#f59e0b]/10 border border-[#f59e0b]/20 text-[#f59e0b] text-xs font-bold text-center hover:bg-[#f59e0b]/15 transition-all">
-                        View Passport →
-                      </Link>
-                    </div>
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl mb-5">
+                  <div className="flex flex-col items-center">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Raw</span>
+                    <span className="text-xl font-bold text-gray-700">{cand.raw}</span>
                   </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
+                  <div className="flex flex-col items-center justify-center flex-1 px-3">
+                    <div className="flex items-center gap-1 text-secondary font-black text-sm mb-1 bg-secondary/10 px-2 rounded-full">
+                      +{cand.credit} Credit
+                    </div>
+                    <div className="w-full h-px border-t border-dashed border-gray-300" />
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">CEOS</span>
+                    <ScoreRing score={cand.ceos} size={46} strokeWidth={4} />
+                  </div>
+                </div>
 
-        {filtered.length === 0 && (
-          <div className="text-center py-20 text-white/20">
-            <span className="text-3xl block mb-3">🔍</span>
-            No candidates match
-          </div>
-        )}
+                <div className="mb-6 flex-1">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 mb-2">
+                    <MapPin size={12} /> {cand.district}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {cand.tags.map(t => (
+                      <Badge key={t} variant="neutral">{t}</Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mt-auto">
+                  <Link to="/compare" className="w-full">
+                    <Button variant="outline" className="w-full text-xs h-9">Compare</Button>
+                  </Link>
+                  <Link to={`/passport/${cand.id}`} className="w-full">
+                    <Button variant="secondary" className="w-full text-xs h-9 bg-primary/10 text-primary border-transparent hover:bg-primary hover:text-white transition-colors">Passport</Button>
+                  </Link>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        ))}
       </div>
     </div>
   )

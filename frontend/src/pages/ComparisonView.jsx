@@ -1,222 +1,145 @@
-import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { Card } from '../components/ui/Card'
+import { ScoreRing } from '../components/ui/ScoreRing'
+import { Badge } from '../components/ui/Badge'
+import { Button } from '../components/ui/Button'
 import { Link } from 'react-router-dom'
-import { CANDIDATES } from '../data/mockData'
+import { ArrowLeft, AlertTriangle, CheckCircle2, Copy } from 'lucide-react'
 
-const D_COLOR = {
-  'Shortlisted': { text: 'text-emerald-400', bg: 'bg-emerald-400/8', border: 'border-emerald-400/20' },
-  'In Review':   { text: 'text-yellow-400',  bg: 'bg-yellow-400/8',  border: 'border-yellow-400/20'  },
-  'Rejected':    { text: 'text-red-400',      bg: 'bg-red-400/8',     border: 'border-red-400/20'     },
-}
-
-function ScorePill({ score, color }) {
+function FactorBar({ label, value, max = 100, colorClass = "bg-primary" }) {
   return (
-    <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black ${color}`}>
-      {score}
+    <div className="mb-4">
+      <div className="flex justify-between text-sm font-bold mb-1.5">
+        <span className="text-gray-600">{label}</span>
+        <span className="text-gray-900">{value}</span>
+      </div>
+      <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
+        <motion.div 
+          initial={{ width: 0 }}
+          animate={{ width: `${(value / max) * 100}%` }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className={`h-full ${colorClass} rounded-full`} 
+        />
+      </div>
     </div>
   )
 }
 
 export default function ComparisonView() {
-  const [hovered, setHovered] = useState(null)
-  const rescued = CANDIDATES.filter(c => c.decision.uniform === 'Rejected' && c.decision.context === 'Shortlisted')
-  const penalised = CANDIDATES.filter(c => c.opportunityCredit < 0)
-
-  const sortedByContext = [...CANDIDATES].sort((a,b) => a.rank.context - b.rank.context)
-
   return (
-    <div className="min-h-screen px-6 py-10">
-      <div className="max-w-7xl mx-auto">
+    <div className="max-w-5xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-8">
+        <Link to="/dashboard" className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors shadow-sm">
+          <ArrowLeft size={20} />
+        </Link>
+        <div>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Model Comparison</h1>
+          <p className="text-gray-500 font-medium mt-1">Aarav Nair • Frontend Engineer</p>
+        </div>
+      </div>
 
-        {/* Header */}
-        <div className="mb-8">
-          <p className="text-[10px] font-bold text-[#f59e0b]/60 uppercase tracking-widest mb-2">Explainability Layer</p>
-          <h1 className="text-3xl font-black text-white tracking-tight">Uniform vs. FairBridge</h1>
-          <p className="text-white/30 text-sm mt-1">Same candidates. Same resumes. Different model. Different outcomes.</p>
+      {/* Amber Impact Banner */}
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-secondary/10 border border-secondary/20 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center gap-4"
+      >
+        <div className="w-12 h-12 rounded-xl bg-secondary text-white flex items-center justify-center shrink-0 shadow-lg shadow-secondary/20">
+          <AlertTriangle size={24} />
+        </div>
+        <div>
+          <h3 className="text-lg font-black text-gray-900 mb-1">CEOS Rescue Triggered</h3>
+          <p className="text-gray-600 font-medium">
+            This candidate fails standard parsing models due to college name mismatch and low keyword density. 
+            The <strong className="text-gray-900">CEOS Model</strong> identifies structural disadvantages (Rural district + Tier-3 college) and applies a <strong className="text-secondary">+21 Opportunity Credit</strong>, pushing them over the shortlist threshold.
+          </p>
+        </div>
+      </motion.div>
+
+      {/* Comparison Grid */}
+      <div className="grid md:grid-cols-2 gap-8 lg:gap-12 pt-4">
+        {/* Left: Uniform Model */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-2">
+            <h2 className="text-xl font-bold text-gray-400">Standard Model</h2>
+            <Badge variant="neutral" className="uppercase tracking-widest text-[10px]">Rejected</Badge>
+          </div>
+          <Card className="p-8 border-gray-200 bg-gray-50/50">
+            <div className="flex flex-col items-center mb-10">
+              <ScoreRing score={68} size={100} strokeWidth={8} />
+              <div className="mt-4 text-center">
+                <div className="text-sm font-bold text-gray-500 uppercase tracking-widest">Base Score</div>
+                <div className="text-xs text-gray-400 mt-1">Fails 75.0 threshold</div>
+              </div>
+            </div>
+
+            <div className="space-y-6 border-t border-gray-200 pt-6">
+              <h4 className="font-bold text-gray-900 text-sm mb-4 uppercase tracking-wider">Factor Breakdown</h4>
+              <FactorBar label="Keyword Match" value={72} colorClass="bg-gray-400" />
+              <FactorBar label="Experience Depth" value={65} colorClass="bg-gray-400" />
+              <FactorBar label="Education Prestigate" value={40} colorClass="bg-gray-400" />
+              
+              <div className="h-px bg-gray-200 my-4" />
+              <div className="flex justify-between font-bold text-gray-500">
+                <span>Final Output</span>
+                <span>68</span>
+              </div>
+            </div>
+          </Card>
         </div>
 
-        {/* Column headers */}
-        <div className="grid grid-cols-[220px_1fr_1fr] gap-4 mb-3">
-          <div />
-          <div className="bg-[#0a0b18] border border-white/8 rounded-xl px-5 py-3">
-            <div className="flex items-center gap-2 mb-0.5">
-              <div className="w-2 h-2 rounded-full bg-white/20" />
-              <span className="text-xs font-bold text-white/50">Uniform Model</span>
-            </div>
-            <p className="text-[10px] text-white/20">One rule set for all — ignores context</p>
+        {/* Right: CEOS Model */}
+        <div className="space-y-6 relative">
+          <div className="flex items-center justify-between px-2">
+            <h2 className="text-xl font-black text-gray-900">HireGround CEOS <span className="text-primary">*</span></h2>
+            <Badge variant="rescued" className="uppercase tracking-widest text-[10px] gap-1"><CheckCircle2 size={12}/> Recommended</Badge>
           </div>
-          <div className="bg-[#f59e0b]/5 border border-[#f59e0b]/20 rounded-xl px-5 py-3">
-            <div className="flex items-center gap-2 mb-0.5">
-              <div className="w-2 h-2 rounded-full bg-[#f59e0b]" />
-              <span className="text-xs font-bold text-[#f59e0b]">FairBridge Model</span>
-              <span className="ml-auto text-[9px] font-bold text-[#f59e0b]/50 uppercase tracking-wider">HireGround</span>
+          <Card className="p-8 border-primary/20 shadow-[0_8px_32px_rgba(220,38,38,0.08)] relative overflow-hidden">
+            {/* Red accent top border */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-primary" />
+            
+            <div className="flex flex-col items-center mb-10 mt-2">
+              <ScoreRing score={89} size={100} strokeWidth={8} />
+              <div className="mt-4 text-center">
+                <div className="text-sm font-bold text-primary uppercase tracking-widest">Adjusted Score</div>
+                <div className="text-xs text-gray-500 mt-1">Passes 75.0 threshold</div>
+              </div>
             </div>
-            <p className="text-[10px] text-white/20">Opportunity Credit applied — fair evaluation</p>
-          </div>
-        </div>
 
-        {/* Comparison rows */}
-        <div className="space-y-2">
-          {sortedByContext.map(c => {
-            const isHov = hovered === c.id
-            const wasRescued = c.decision.uniform === 'Rejected' && c.decision.context === 'Shortlisted'
-            const wasPenalised = c.opportunityCredit < 0
-            const uCol = D_COLOR[c.decision.uniform]
-            const cCol = D_COLOR[c.decision.context]
-
-            return (
-              <div key={c.id}
-                onMouseEnter={()=>setHovered(c.id)}
-                onMouseLeave={()=>setHovered(null)}
-                className={`grid grid-cols-[220px_1fr_1fr] gap-4 transition-all duration-200 ${isHov ? 'scale-[1.002]' : ''}`}>
-
-                {/* Candidate chip */}
-                <div className={`bg-[#0a0b18] border rounded-xl px-4 py-3.5 flex items-center gap-3 transition-all
-                  ${isHov ? 'border-white/12' : 'border-white/5'}`}>
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#f59e0b]/15 to-[#f59e0b]/5 border border-[#f59e0b]/15 flex items-center justify-center text-[#f59e0b] text-xs font-black flex-shrink-0">
-                    {c.name.split(' ').map(w=>w[0]).join('')}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-white text-xs font-bold truncate">{c.name}</p>
-                    <p className="text-white/25 text-[10px] truncate">{c.location}</p>
-                  </div>
-                  <div className={`ml-auto text-xs font-black flex-shrink-0 px-2 py-1 rounded-lg
-                    ${c.opportunityCredit > 0 ? 'text-emerald-400 bg-emerald-400/8' :
-                      c.opportunityCredit < 0 ? 'text-red-400/60 bg-red-400/5' :
-                      'text-white/20'}`}>
-                    {c.opportunityCredit > 0 ? '+' : ''}{c.opportunityCredit}
-                  </div>
+            <div className="space-y-6 border-t border-gray-100 pt-6">
+              <h4 className="font-bold text-gray-900 text-sm mb-4 uppercase tracking-wider">Factor Breakdown</h4>
+              <FactorBar label="Raw Baseline" value={68} colorClass="bg-gray-300" />
+              
+              <div className="bg-secondary/5 -mx-4 px-4 py-4 rounded-xl border border-secondary/10 relative">
+                <div className="absolute left-[-10px] top-1/2 -translate-y-1/2 w-5 h-5 bg-white border border-secondary/20 rounded-full flex items-center justify-center text-[10px] font-black text-secondary">+</div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+                    <span className="text-secondary"><Copy size={14} /></span> Opportunity Credit
+                  </span>
+                  <span className="font-black text-secondary">+21</span>
                 </div>
-
-                {/* Uniform model card */}
-                <div className={`bg-[#0a0b18] border rounded-xl px-5 py-4 transition-all
-                  ${isHov ? 'border-white/10' : 'border-white/5'}`}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${uCol.bg} ${uCol.text} ${uCol.border}`}>
-                          #{c.rank.uniform} · {c.decision.uniform}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-white/20 rounded-full transition-all duration-700" style={{width:`${c.uniformScore}%`}} />
-                        </div>
-                        <span className="text-lg font-black text-white/40">{c.uniformScore}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-white/25 mt-2 leading-relaxed">
-                    {c.college} · {c.skills.slice(0,2).join(', ')}
-                  </p>
-                </div>
-
-                {/* FairBridge card */}
-                <div className={`border rounded-xl px-5 py-4 transition-all
-                  ${wasRescued ? 'bg-emerald-400/3 border-emerald-400/20' :
-                    wasPenalised ? 'bg-[#0a0b18] border-white/5' :
-                    'bg-[#f59e0b]/3 border-[#f59e0b]/10'}
-                  ${isHov && wasRescued ? 'border-emerald-400/35' : ''}`}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-2">
-                        <div className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${cCol.bg} ${cCol.text} ${cCol.border}`}>
-                          #{c.rank.context} · {c.decision.context}
-                        </div>
-                        {wasRescued && (
-                          <span className="text-[9px] font-black text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                            ✦ RESCUED
-                          </span>
-                        )}
-                        {wasPenalised && (
-                          <span className="text-[9px] text-white/25 bg-white/5 border border-white/8 px-2 py-0.5 rounded-full">
-                            adjusted ↓
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <div className="flex-1 h-1.5 bg-[#f59e0b]/8 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full transition-all duration-700 ${wasRescued ? 'bg-emerald-400' : 'bg-[#f59e0b]'}`} style={{width:`${c.contextScore}%`}} />
-                        </div>
-                        <span className={`text-lg font-black ${wasRescued ? 'text-emerald-400' : 'text-[#f59e0b]'}`}>{c.contextScore}</span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Context tags */}
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {c.contextFactors.slice(0,2).map(f => (
-                      <span key={f.label} className="text-[9px] text-[#f59e0b]/50 bg-[#f59e0b]/5 px-1.5 py-0.5 rounded">{f.icon} {f.label}</span>
-                    ))}
-                    {c.contextFactors.length > 2 && (
-                      <span className="text-[9px] text-white/20">+{c.contextFactors.length-2} factors</span>
-                    )}
-                  </div>
-                  <Link to={`/passport/${c.id}`} className="inline-block mt-2.5 text-[9px] font-bold text-[#f59e0b]/50 hover:text-[#f59e0b] transition-colors uppercase tracking-wider">
-                    View Passport →
-                  </Link>
+                <div className="space-y-1 mt-3">
+                  <div className="flex justify-between text-xs text-gray-600"><span className="font-bold">Rural Base (Wayanad)</span><span>+12</span></div>
+                  <div className="flex justify-between text-xs text-gray-600"><span className="font-bold">Tier-3 Institution</span><span>+7</span></div>
+                  <div className="flex justify-between text-xs text-gray-600"><span className="font-bold">First-Gen Graduate</span><span>+2</span></div>
                 </div>
               </div>
-            )
-          })}
-        </div>
-
-        {/* Summary panels */}
-        <div className="grid grid-cols-3 gap-4 mt-10">
-          {/* Rescued */}
-          <div className="bg-emerald-400/3 border border-emerald-400/15 rounded-2xl p-5">
-            <p className="text-emerald-400 text-xs font-bold mb-3 flex items-center gap-2">✦ Rescued by FairBridge</p>
-            <div className="space-y-2">
-              {rescued.map(c => (
-                <div key={c.id} className="flex items-center justify-between">
-                  <span className="text-white/60 text-xs">{c.name}</span>
-                  <div className="flex items-center gap-1.5 text-[10px]">
-                    <span className="text-red-400/60 line-through">{c.uniformScore}</span>
-                    <span className="text-white/20">→</span>
-                    <span className="text-emerald-400 font-bold">{c.contextScore}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Metrics */}
-          <div className="bg-[#0a0b18] border border-white/5 rounded-2xl p-5">
-            <p className="text-white/40 text-xs font-bold mb-3">Impact Metrics</p>
-            {[
-              { l: 'Rural shortlist share', u: '12%', f: '28%', up: true },
-              { l: 'CEOS score',            u: '0.62', f: '0.87', up: true },
-              { l: 'Top talent preserved',  u: '95%',  f: '94%', up: false },
-              { l: 'First-gen shortlisted', u: '14%',  f: '31%', up: true },
-            ].map(m => (
-              <div key={m.l} className="flex items-center justify-between py-1.5 border-b border-white/3 last:border-0">
-                <span className="text-white/30 text-[10px]">{m.l}</span>
-                <div className="flex items-center gap-2 text-[10px] font-bold">
-                  <span className="text-white/25">{m.u}</span>
-                  <span className="text-white/15">→</span>
-                  <span className={m.up ? 'text-[#f59e0b]' : 'text-white/40'}>{m.f}</span>
-                  {m.up && <span className="text-emerald-400">↑</span>}
-                </div>
+              
+              <div className="h-px bg-gray-100 my-4" />
+              <div className="flex justify-between font-black text-xl text-gray-900">
+                <span>Final Output</span>
+                <span>89</span>
               </div>
-            ))}
-          </div>
-
-          {/* Why */}
-          <div className="bg-[#0a0b18] border border-white/5 rounded-2xl p-5">
-            <p className="text-white/40 text-xs font-bold mb-3">Why Scores Differ</p>
-            <ul className="space-y-2.5">
-              {[
-                'Rural district → district job-gap multiplier applied',
-                'First-gen → trajectory > pedigree rewarded',
-                'No internet → self-learning heavily weighted',
-                'Coaching access → subtracted from raw advantage',
-                'Disability → infrastructure barrier factored in',
-              ].map(t => (
-                <li key={t} className="flex gap-2 text-[10px] text-white/30 leading-relaxed">
-                  <span className="text-[#f59e0b]/50 flex-shrink-0 mt-0.5">▸</span>{t}
-                </li>
-              ))}
-            </ul>
-          </div>
+            </div>
+          </Card>
         </div>
+      </div>
+      
+      <div className="pt-8 flex justify-end">
+        <Link to="/passport/1">
+          <Button size="lg" className="shadow-lg shadow-primary/20">Generate Fairness Passport →</Button>
+        </Link>
       </div>
     </div>
   )
