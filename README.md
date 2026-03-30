@@ -44,17 +44,17 @@ Deployment: Docker + Vercel/Netlify
 - **Realism**: Mapped to actual Indian circumstances + census data
 
 
-## Problem Statement Deliverables ✓
+## Problem Statement Deliverables 
 
-- [x] **Working prototype**: Resume screening with context-aware decisions
-- [x] **Context integration**: District/college opportunity signals
-- [x] **Side-by-side comparison**: Uniform vs FairBridge outcomes
-- [x] **Explanation mechanism**: Individual Fairness Passports
-- [x] **Other Deliverables**:
-  - Bias-safe personalization ✓
-  - India-focused data ✓
-  - Adaptive fairness scoring (CEOS) ✓
-  - Offline capability ✓
+- **Working prototype**: Resume screening with context-aware decisions
+- **Context integration**: District/college opportunity signals
+- **Side-by-side comparison**: Uniform vs FairBridge outcomes
+- **Explanation mechanism**: Individual Fairness Passports
+- **Other Deliverables**:
+  - Bias-safe personalization 
+  - India-focused data 
+  - Adaptive fairness scoring (CEOS) 
+  - Offline capability 
 
 
 ## Project Structure
