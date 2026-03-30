@@ -1,15 +1,15 @@
 
 # HireGround
-## 📊 Key Features
+## Key Features
 
-- ✅ **Real-world India context**: District job density, college tier mapping, rural/urban infra gaps
-- ✅ **Side-by-side comparison**: Uniform model vs Opportunity Credit model
-- ✅ **Individual explainability**: Every candidate gets a Fairness Passport
-- ✅ **Adaptive fairness**: CEOS tracks + auto-adjusts credits per context cell
-- ✅ **Offline capable**: Edge-friendly, runs on low-spec devices
-- ✅ **Bias-safe**: Environmental signals only, adversarial audits
+- **Real-world India context**: District job density, college tier mapping, rural/urban infra gaps
+- **Side-by-side comparison**: Uniform model vs Opportunity Credit model
+- **Individual explainability**: Every candidate gets a Fairness Passport
+- **Adaptive fairness**: CEOS tracks + auto-adjusts credits per context cell
+- **Offline capable**: Edge-friendly, runs on low-spec devices
+- **Bias-safe**: Environmental signals only, adversarial audits
 
-## 🎮 How It Works
+## How It Works
 Upload resume → Extract skills, experience, education and other metrics
 
 Map to context → "Rural Tier-3, low job density district"
@@ -20,7 +20,7 @@ Opportunity Credit → +7 (4x fewer local jobs, poor college infra)
 
 Final score → 85/100 → Shortlist #1
 
-## 📈 Results
+## Results
 
 | Metric | Uniform Model | FairBridge |
 |--------|---------------|------------|
@@ -29,7 +29,7 @@ Final score → 85/100 → Shortlist #1
 | CEOS (fairness score) | 0.62 | **0.87** ↑40% |
 | Explainability | None | **Passport per candidate** |
 
-## 🛠️ Tech Stack
+## Tech Stack
 Frontend: React + Tailwind CSS+ Chart.js 
 Backend: FastAPI + Python
 Database: PostgreSQL
@@ -37,14 +37,14 @@ Fairness: Custom Opportunity Credit engine
 Context: India district/college opportunity indices
 Deployment: Docker + Vercel/Netlify
 
-## 🗄️ Data Sources
+## Data Sources
 
 - **Resume features**: Synthetic + Kaggle hiring datasets
 - **Context layer**: District job density, college placement rates, rural/urban infra gaps
 - **Realism**: Mapped to actual Indian circumstances + census data
 
 
-## 🎯 Problem Statement Deliverables ✓
+## Problem Statement Deliverables ✓
 
 - [x] **Working prototype**: Resume screening with context-aware decisions
 - [x] **Context integration**: District/college opportunity signals
@@ -57,7 +57,7 @@ Deployment: Docker + Vercel/Netlify
   - Offline capability ✓
 
 
-## 📁 Project Structure
+## Project Structure
 hireground/
 ├── src/
 │ ├── core/ # Opportunity Credit engine
