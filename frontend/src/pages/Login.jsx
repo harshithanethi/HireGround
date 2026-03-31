@@ -1,9 +1,63 @@
-import { Link } from "react-router-dom"
+import { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "../components/ui/Button"
 import { Card } from "../components/ui/Card"
 import { PageTransition } from "../components/PageTransition"
+import { cn } from "../lib/utils"
 
 export default function Login() {
+  const [role, setRole] = useState('recruiter')
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate()
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: '' });
+    }
+  }
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    
+    // Form Validation 
+    const newErrors = {};
+    if (!formData.email.trim()) newErrors.email = "This field is required";
+    if (!formData.password) newErrors.password = "This field is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // Cross-role email logic check against mock DB Let's check existing DB
+    const users = JSON.parse(localStorage.getItem('hireground_users') || '[]');
+    const existingUser = users.find(u => u.email === formData.email.trim());
+
+    if (existingUser) {
+      // If user exists, ensure they are logging in with the correct role
+      if (existingUser.role !== role) {
+        const displayRole = existingUser.role === 'recruiter' ? 'Recruiter' : 'Candidate';
+        setErrors({ general: `This email is already registered as a ${displayRole}. Please log in with the correct role.` });
+        return;
+      }
+    } else {
+      // For smooth demo flow, if email is completely unseen, we'll implicitly allow them 
+      // or optionally we could throw "Account not found". 
+      // The prompt only explicitly asks for Cross-Role checking ("cannot be used to sign up or log in as Candidate and vice versa... show a clear error message")
+      // So we will just proceed nicely if role hasn't collided, essentially auto-registering unrecognised emails for prototyping simplicity.
+      users.push({ ...formData, role });
+      localStorage.setItem('hireground_users', JSON.stringify(users));
+    }
+
+    if (role === 'recruiter') {
+      navigate('/admin');
+    } else {
+      navigate('/app');
+    }
+  }
+
   return (
     <PageTransition className="min-h-screen bg-white flex flex-col justify-center items-center p-4">
       <Link to="/" className="fixed top-8 left-8 flex items-center gap-3">
@@ -16,17 +70,47 @@ export default function Login() {
       <Card className="max-w-md w-full p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border-gray-100">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Welcome back</h2>
-          <p className="text-gray-500 font-medium">Log in to your recruiter account.</p>
+          <p className="text-gray-500 font-medium">Log in to your account.</p>
         </div>
 
-        <form className="space-y-5">
+        <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
+          <button 
+            type="button"
+            className={cn("flex-1 py-2 font-bold text-sm rounded-lg transition-all", role === 'recruiter' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700')}
+            onClick={() => setRole('recruiter')}
+          >
+            Recruiter
+          </button>
+          <button 
+            type="button"
+            className={cn("flex-1 py-2 font-bold text-sm rounded-lg transition-all", role === 'client' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700')}
+            onClick={() => setRole('client')}
+          >
+            Client
+          </button>
+        </div>
+
+        <form className="space-y-4" onSubmit={handleLogin} noValidate>
+          {errors.general && (
+            <div className="p-3 mb-4 rounded-lg bg-red-50 text-red-700 text-sm font-bold border border-red-200">
+              {errors.general}
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1.5">Work Email</label>
             <input 
               type="email" 
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-400"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className={cn(
+                "w-full px-4 py-3 rounded-lg border bg-gray-50 text-gray-900 font-medium focus:outline-none transition-all placeholder:text-gray-400",
+                errors.email ? "border-red-500 focus:ring-1 focus:ring-red-500" : "border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
+              )}
               placeholder="name@company.com"
             />
+            {errors.email && <p className="text-red-500 text-xs font-bold mt-1.5">{errors.email}</p>}
           </div>
           
           <div>
@@ -36,12 +120,19 @@ export default function Login() {
             </label>
             <input 
               type="password" 
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-400"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              className={cn(
+                "w-full px-4 py-3 rounded-lg border bg-gray-50 text-gray-900 font-medium focus:outline-none transition-all placeholder:text-gray-400",
+                errors.password ? "border-red-500 focus:ring-1 focus:ring-red-500" : "border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary"
+              )}
               placeholder="••••••••"
             />
+            {errors.password && <p className="text-red-500 text-xs font-bold mt-1.5">{errors.password}</p>}
           </div>
 
-          <Button className="w-full mt-2" size="lg">Log In</Button>
+          <Button type="submit" className="w-full mt-4" size="lg">Log In</Button>
         </form>
 
         <div className="mt-8 flex items-center justify-center gap-2">

@@ -12,6 +12,7 @@ import CandidateUpload from './pages/CandidateUpload'
 import { CandidateSummary } from './components/CandidateSummary'
 import { EvaluationSection } from './components/EvaluationSection'
 import Analytics from './pages/Analytics'
+import FairnessPlatform from './pages/FairnessPlatform'
 
 // Admin
 import { AdminProvider } from './admin/AdminContext'
@@ -60,7 +61,7 @@ function AppContent() {
           <Route path="/admin/candidates/:id" element={<AdminCandidateDetail />} />
           <Route path="/admin/scoring-config" element={<AdminScoringConfig />} />
           <Route path="/admin/constraints" element={<AdminConstraints />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/fairness" element={<FairnessPlatform />} />
         </Route>
       </Routes>
     </AnimatePresence>

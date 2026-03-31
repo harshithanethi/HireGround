@@ -36,7 +36,7 @@ export function AdminLayout() {
             <Menu size={24} />
           </button>
 
-          <Link to="/admin" className="flex items-center gap-2 group cursor-pointer" title="Admin Home">
+          <Link to="/" className="flex items-center gap-2 group cursor-pointer" title="Return to Hero Page">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-black text-xs shadow-md shadow-primary/20">
               H
             </div>

@@ -1,11 +1,12 @@
 import { useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { UploadCloud, Users, Star, BarChart2, LogOut, X } from 'lucide-react'
+import { UploadCloud, Users, Star, BarChart2, LogOut, X, Scale } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 export function Sidebar({ isOpen, setIsOpen }) {
   const location = useLocation();
+  const navigate = useNavigate();
   
   const navLinks = [
     { to: '/upload', label: 'Upload', icon: UploadCloud },
@@ -92,6 +93,7 @@ export function Sidebar({ isOpen, setIsOpen }) {
                 <div className="text-xs text-gray-500">Recruiter Admin</div>
               </div>
               <button 
+                onClick={() => navigate('/')}
                 className="text-gray-400 hover:text-primary transition-colors p-2 rounded-lg hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
                 title="Logout"
               >

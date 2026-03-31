@@ -4,7 +4,7 @@ import { ScoreRing } from '../components/ui/ScoreRing'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { Link } from 'react-router-dom'
-import { Search, Filter, MoreHorizontal, FileText, ArrowUpRight, TrendingUp } from 'lucide-react'
+import { Search, Filter, MoreHorizontal, FileText, ArrowUpRight, TrendingUp, MapPin } from 'lucide-react'
 
 // Dummy Data
 const DB_CANDIDATES = [

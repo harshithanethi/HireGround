@@ -7,14 +7,26 @@ import { Link, useNavigate } from 'react-router-dom'
 
 export default function CandidateUpload() {
   const [step, setStep] = useState(1)
-  const [direction, setDirection] = useState(1) // 1 for forward, -1 for backward
+  const [direction, setDirection] = useState(1)
   const navigate = useNavigate()
 
-  const resumeInputRef = useRef(null);
-  const certInputRef = useRef(null);
+  const resumeInputRef = useRef(null)
+  const certInputRef = useRef(null)
 
   const [resumeFile, setResumeFile] = useState(null)
   const [certFile, setCertFile] = useState(null)
+
+  // Proper state management instead of hardcoding inputs
+  const [formData, setFormData] = useState({
+    name: 'Aarav Nair',
+    email: 'aarav@email.com',
+    role: 'Frontend Engineer',
+    experience: '3',
+    district: 'Wayanad, KL',
+    area: 'Rural',
+    tier: 'Tier3',
+    firstGen: true,
+  })
 
   const nextStep = () => {
     setDirection(1)
@@ -27,6 +39,59 @@ export default function CandidateUpload() {
   }
 
   const finish = () => {
+    // Generate an ID for the new candidate
+    const newId = `HG-C-${Math.floor(Math.random() * 90000) + 10000}`
+    
+    // Simulate resume extraction and compute baseline stats based on the form context
+    const skills = formData.role.toLowerCase().includes('frontend') 
+      ? ['React', 'JavaScript', 'Tailwind', 'HTML/CSS'] 
+      : ['Python', 'SQL', 'Data Analysis']
+    
+    const newCandidate = {
+      id: newId,
+      name: formData.name,
+      college: formData.tier === 'Tier3' ? 'Local Institution' : (formData.tier === 'Tier2' ? 'State College' : 'Premium Institute'),
+      collegeTier: formData.tier,
+      district: formData.district,
+      isRural: formData.area === 'Rural' || formData.area === 'Semi-rural',
+      isFirstGen: formData.firstGen,
+      jobDensityIndex: formData.area === 'Rural' ? 15 : (formData.area === 'Semi-rural' ? 35 : 85),
+      resume: {
+        cgpa: 7.5 + Math.random() * 1.5,
+        skills: skills,
+        projectsCount: 3,
+        internshipsCount: formData.experience > 0 ? 1 : 0,
+        certificationsCount: 1,
+        experienceMonths: parseInt(formData.experience) * 12 || 0,
+        rawText: "Parsed dynamically from: " + (resumeFile?.name || "Uploaded Document"),
+      },
+      admin: {
+        status: "under_review",
+        notes: "",
+        lastActionAt: new Date().toISOString(),
+        lastActionBy: "admin_aj",
+      },
+      processedAt: new Date().toISOString()
+    }
+
+    // Read current state from local storage or get default empty state
+    try {
+      const storageKey = "hireground_admin_state_v1"
+      const raw = localStorage.getItem(storageKey)
+      let stateData = raw ? JSON.parse(raw) : { candidates: [] }
+      
+      // Inject new candidate at the beginning
+      if (!stateData.candidates) stateData.candidates = []
+      stateData.candidates = [newCandidate, ...stateData.candidates]
+      
+      // Also save the specific newest candidate for the CandidateSummary to show
+      localStorage.setItem('hg_latest_candidate', JSON.stringify(newCandidate))
+      
+      localStorage.setItem(storageKey, JSON.stringify(stateData))
+    } catch(e) {
+      console.error("Error saving candidate:", e)
+    }
+
     navigate('/candidate')
   }
 
@@ -81,19 +146,19 @@ export default function CandidateUpload() {
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Full Name</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Aarav Nair" defaultValue="Aarav Nair" />
+                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="e.g. Aarav Nair" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
-                    <input type="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="aarav@email.com" defaultValue="aarav@email.com" />
+                    <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="aarav@email.com" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Role Applied For</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Frontend Engineer" defaultValue="Frontend Engineer" />
+                    <input type="text" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Frontend Engineer" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Years of Experience</label>
-                    <input type="number" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="3" defaultValue="3" />
+                    <input type="number" value={formData.experience} onChange={e => setFormData({...formData, experience: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="3" />
                   </div>
                 </div>
               </motion.div>
@@ -114,34 +179,33 @@ export default function CandidateUpload() {
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">District / Local Area</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="e.g. Wayanad" defaultValue="Wayanad" />
+                    <input type="text" value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="e.g. Wayanad" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Area Classification</label>
-                    <select className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none font-medium">
-                      <option>Rural</option>
-                      <option>Semi-rural</option>
-                      <option>Urban</option>
-                      <option>Metro</option>
+                    <select value={formData.area} onChange={e => setFormData({...formData, area: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none font-medium">
+                      <option value="Rural">Rural</option>
+                      <option value="Semi-rural">Semi-rural</option>
+                      <option value="Urban">Urban</option>
+                      <option value="Metro">Metro</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Institution / College Tier</label>
-                    <select className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none font-medium">
-                      <option>Tier 3 (State / Unranked)</option>
-                      <option>Tier 2 (Private / State Top)</option>
-                      <option>Tier 1 (NIT / BITS)</option>
-                      <option>IIT / IIM</option>
+                    <select value={formData.tier} onChange={e => setFormData({...formData, tier: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none font-medium">
+                      <option value="Tier3">Tier 3 (State / Unranked)</option>
+                      <option value="Tier2">Tier 2 (Private / State Top)</option>
+                      <option value="Tier1">Tier 1 (NIT / BITS / IIT)</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">First-Gen Graduate</label>
                     <div className="flex gap-4 mt-3">
                       <label className="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
-                        <input type="radio" name="firstgen" className="w-4 h-4 text-primary focus:ring-primary" defaultChecked /> Yes
+                        <input type="radio" name="firstgen" checked={formData.firstGen === true} onChange={() => setFormData({...formData, firstGen: true})} className="w-4 h-4 text-primary focus:ring-primary" /> Yes
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
-                        <input type="radio" name="firstgen" className="w-4 h-4 text-primary focus:ring-primary" /> No
+                        <input type="radio" name="firstgen" checked={formData.firstGen === false} onChange={() => setFormData({...formData, firstGen: false})} className="w-4 h-4 text-primary focus:ring-primary" /> No
                       </label>
                     </div>
                   </div>
@@ -251,7 +315,7 @@ export default function CandidateUpload() {
                 </div>
                 <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Ready for Processing</h2>
                 <p className="text-gray-500 font-medium max-w-md mx-auto mb-8">
-                  Aarav's profile is ready. HireGround will extract skills and apply CEOS balancing against uniform baselines.
+                  {formData.name.split(' ')[0]}'s profile is ready. HireGround will extract skills and apply CEOS balancing against uniform baselines.
                 </p>
 
                 <div className="bg-secondary/10 border border-secondary/20 p-5 rounded-xl text-left">

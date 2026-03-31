@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { LayoutDashboard, Users, SlidersHorizontal, ShieldCheck, Settings, LogOut, X } from "lucide-react"
 import { cn } from "../../lib/utils"
@@ -7,12 +7,14 @@ import { cn } from "../../lib/utils"
 export function AdminSidebar({ isOpen, setIsOpen }) {
   const location = useLocation()
 
+  const navigate = useNavigate()
+
   const navLinks = [
     { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { to: "/admin/candidates", label: "Candidates", icon: Users },
     { to: "/admin/scoring-config", label: "Scoring Config", icon: SlidersHorizontal },
     { to: "/admin/constraints", label: "Constraints", icon: ShieldCheck },
-    { to: "/admin/settings", label: "Settings", icon: Settings, disabled: true },
+    { to: "/admin/fairness", label: "Fairness Config", icon: Settings },
   ]
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export function AdminSidebar({ isOpen, setIsOpen }) {
             className="fixed top-0 left-0 bottom-0 w-[280px] bg-white border-r border-gray-100 z-50 flex flex-col shadow-2xl"
           >
             <div className="p-6 flex items-center justify-between">
-              <Link to="/admin" className="flex items-center gap-2 group" onClick={() => setIsOpen(false)}>
+              <Link to="/" className="flex items-center gap-2 group" onClick={() => setIsOpen(false)}>
                 <div className="relative w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-black text-xs">
                   H
                 </div>
@@ -95,6 +97,7 @@ export function AdminSidebar({ isOpen, setIsOpen }) {
                 <div className="text-xs text-gray-500 font-medium">Platform Admin</div>
               </div>
               <button
+                onClick={() => navigate('/')}
                 className="text-gray-400 hover:text-primary transition-colors p-2 rounded-lg hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
                 title="Logout"
               >
