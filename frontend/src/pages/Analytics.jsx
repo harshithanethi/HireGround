@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { API_BASE } from '../config/api'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Lightbulb, TrendingUp, BarChart, Users } from 'lucide-react'
@@ -25,6 +27,23 @@ ChartJS.register(
 )
 
 export default function Analytics() {
+  const [stats, setStats] = useState(null)
+  
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem("hg_access_token")
+        const res = await fetch(`${API_BASE}/v1/context-stats`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        })
+        if (res.ok) setStats(await res.json())
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    fetchStats()
+  }, [])
+
   const barData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
@@ -89,7 +108,7 @@ export default function Analytics() {
           { icon: TrendingUp, stat: '78', label: 'Avg CEOS' },
           { icon: BarChart, stat: '28', label: 'Rescued' },
           { icon: Lightbulb, stat: '+1,560', label: 'Credits' },
-          { icon: Users, stat: '640+', label: 'Districts' }
+          { icon: Users, stat: stats?.districts_count ? `${stats.districts_count}` : '640+', label: 'Districts' }
         ].map((s, i) => (
           <Card key={i} className="p-5 flex flex-col items-center justify-center text-center">
             <s.icon className="text-primary mb-3" size={24} />

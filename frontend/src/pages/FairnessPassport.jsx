@@ -3,27 +3,47 @@ import { Card } from '../components/ui/Card'
 import { ScoreRing } from '../components/ui/ScoreRing'
 import { Button } from '../components/ui/Button'
 import { Printer, CheckCircle2, Landmark, MapPin, Download } from 'lucide-react'
+import { useAppContext } from '../context/AppContext'
 
 export default function FairnessPassport() {
   const { id } = useParams()
+  const { candidateResult, jobConfig } = useAppContext();
+
+  const res = candidateResult || {
+    candidate_name: 'Aarav Nair',
+    baseline_score: 68,
+    final_score: 89,
+    context_adjustment: 21,
+    parsed_data: { 
+      district: 'Wayanad, Kerala', 
+      college_tier: 'Tier 3 (State / Unranked)',
+      first_gen_flag: true,
+      skills: ['React', 'JavaScript', 'Tailwind', 'RESTful APIs', 'Node.js', 'PostgreSQL', 'Framer Motion']
+    },
+    passport: { 
+      ceos_score: 89,
+      adjustment_breakdown: ["Rural Base (Wayanad) +12", "Tier-3 Institution +7", "First-Gen Graduate +2"]
+    }
+  };
 
   const dummyData = {
     id: `HG-2025-00${id || '91'}`,
-    name: 'Aarav Nair',
-    role: 'Frontend Engineer',
-    date: '30 October 2025',
-    district: 'Wayanad',
-    state: 'Kerala',
-    area: 'Rural',
-    connectivity: 'Low / 3G Dominant',
-    collegeTier: 'Tier-3 (State / Unranked)',
-    firstGen: 'Yes',
-    experience: '3 Years',
-    ceos: 89,
-    raw: 68,
-    credit: 21,
-    rank: 'Top 10%',
-    skills: ['React', 'JavaScript', 'Tailwind', 'RESTful APIs', 'Node.js', 'PostgreSQL', 'Framer Motion'],
+    name: res.candidate_name || 'Candidate',
+    role: jobConfig?.title || 'Engineer',
+    date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+    district: res.parsed_data?.district || 'Unknown',
+    state: '',
+    area: 'Analyzed Segment',
+    connectivity: 'Standard',
+    collegeTier: res.parsed_data?.college_tier || 'Tier-3',
+    firstGen: res.parsed_data?.first_gen_flag ? 'Yes' : 'No',
+    experience: 'Calculated baseline',
+    ceos: Math.round(res.passport?.ceos_score || 89),
+    raw: Math.round(res.baseline_score || 68),
+    credit: Math.round(res.context_adjustment || 21),
+    rank: (res.passport?.ceos_score || 89) > 80 ? 'Top 10%' : 'Top 40%',
+    skills: res.parsed_data?.skills || ['N/A'],
+    breakdowns: res.passport?.adjustment_breakdown || []
   }
 
   return (
@@ -31,14 +51,14 @@ export default function FairnessPassport() {
       {/* Action Bar */}
       <div className="flex justify-between items-center">
          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Official Record</h1>
-         <div className="flex gap-3">
-           <Button variant="outline" className="text-xs h-9 gap-2 shadow-sm font-bold">
-             <Printer size={14} /> Print
-           </Button>
-           <Button variant="secondary" className="text-xs h-9 gap-2 bg-primary/10 text-primary border-transparent hover:bg-primary hover:text-white transition-colors">
-             <Download size={14} /> Export PDF
-           </Button>
-         </div>
+          <div className="flex gap-3 print:hidden">
+            <Button variant="outline" className="text-xs h-9 gap-2 shadow-sm font-bold" onClick={() => window.print()}>
+              <Printer size={14} /> Print
+            </Button>
+            <Button variant="secondary" className="text-xs h-9 gap-2 bg-primary/10 text-primary border-transparent hover:bg-primary hover:text-white transition-colors" onClick={() => window.print()}>
+              <Download size={14} /> Export PDF
+            </Button>
+          </div>
       </div>
 
       {/* PASSPORT DOCUMENT */}
@@ -136,27 +156,19 @@ export default function FairnessPassport() {
           </h4>
           
           <div className="space-y-4">
-            <div className="bg-secondary/5 border-l-4 border-secondary p-4 flex gap-4 text-sm">
-              <div className="font-black text-lg text-secondary min-w-[36px]">+12</div>
-              <div>
-                <div className="font-bold text-gray-900 mb-1">Rural Macro-economy Adjustment (Wayanad)</div>
-                <div className="text-gray-600 leading-snug">Wayanad district indicates 4× fewer IT sector jobs per capita compared to national median. (Source: DPIIT 2023 Employment Data)</div>
+            {dummyData.breakdowns.length > 0 ? dummyData.breakdowns.map((b, i) => (
+              <div key={i} className="bg-secondary/5 border-l-4 border-secondary p-4 flex gap-4 text-sm">
+                <div className="font-black text-lg text-secondary min-w-[36px]">+</div>
+                <div>
+                  <div className="font-bold text-gray-900 mb-1">{b}</div>
+                  <div className="text-gray-600 leading-snug">Calculated opportunity factor based on census/regional constraints.</div>
+                </div>
               </div>
-            </div>
-            <div className="bg-secondary/5 border-l-4 border-secondary p-4 flex gap-4 text-sm">
-              <div className="font-black text-lg text-secondary min-w-[36px]">+7</div>
-              <div>
-                <div className="font-bold text-gray-900 mb-1">Institution Tier Adjustment (Tier-3)</div>
-                <div className="text-gray-600 leading-snug">College not ranked in top 200. Automatically adjusts expected resume keyword density to reflect non-standard curricula. (Source: NIRF 2024 Rankings)</div>
+            )) : (
+              <div className="bg-gray-50 border-l-4 border-gray-300 p-4 text-sm text-gray-600">
+                No contextual adjustments applied (Standard Baseline).
               </div>
-            </div>
-            <div className="bg-secondary/5 border-l-4 border-secondary p-4 flex gap-4 text-sm">
-              <div className="font-black text-lg text-secondary min-w-[36px]">+2</div>
-              <div>
-                <div className="font-bold text-gray-900 mb-1">First-Generation Modifier</div>
-                <div className="text-gray-600 leading-snug">Self-reported structural gap in corporate networking and mentorship availability.</div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -187,8 +199,8 @@ export default function FairnessPassport() {
         </div>
       </Card>
       
-      <div className="pb-12 text-center">
-        <Link to="/dashboard" className="text-primary font-bold hover:underline text-sm">
+      <div className="pb-12 text-center print:hidden">
+        <Link to="/candidate" className="text-primary font-bold hover:underline text-sm">
           Return to Dashboard
         </Link>
       </div>

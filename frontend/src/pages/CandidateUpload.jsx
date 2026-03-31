@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAppContext } from '../context/AppContext'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { FileUp, CheckCircle2, ChevronRight, File } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 export default function CandidateUpload() {
   const [step, setStep] = useState(1)
@@ -16,7 +17,6 @@ export default function CandidateUpload() {
   const [resumeFile, setResumeFile] = useState(null)
   const [certFile, setCertFile] = useState(null)
 
-  // Proper state management instead of hardcoding inputs
   const [formData, setFormData] = useState({
     name: 'Aarav Nair',
     email: 'aarav@email.com',
@@ -39,14 +39,12 @@ export default function CandidateUpload() {
   }
 
   const finish = () => {
-    // Generate an ID for the new candidate
     const newId = `HG-C-${Math.floor(Math.random() * 90000) + 10000}`
-    
-    // Simulate resume extraction and compute baseline stats based on the form context
-    const skills = formData.role.toLowerCase().includes('frontend') 
-      ? ['React', 'JavaScript', 'Tailwind', 'HTML/CSS'] 
+
+    const skills = formData.role.toLowerCase().includes('frontend')
+      ? ['React', 'JavaScript', 'Tailwind', 'HTML/CSS']
       : ['Python', 'SQL', 'Data Analysis']
-    
+
     const newCandidate = {
       id: newId,
       name: formData.name,
@@ -74,21 +72,17 @@ export default function CandidateUpload() {
       processedAt: new Date().toISOString()
     }
 
-    // Read current state from local storage or get default empty state
     try {
       const storageKey = "hireground_admin_state_v1"
       const raw = localStorage.getItem(storageKey)
       let stateData = raw ? JSON.parse(raw) : { candidates: [] }
-      
-      // Inject new candidate at the beginning
+
       if (!stateData.candidates) stateData.candidates = []
       stateData.candidates = [newCandidate, ...stateData.candidates]
-      
-      // Also save the specific newest candidate for the CandidateSummary to show
+
       localStorage.setItem('hg_latest_candidate', JSON.stringify(newCandidate))
-      
       localStorage.setItem(storageKey, JSON.stringify(stateData))
-    } catch(e) {
+    } catch (e) {
       console.error("Error saving candidate:", e)
     }
 
@@ -131,6 +125,7 @@ export default function CandidateUpload() {
       <Card className="min-h-[400px] flex flex-col relative overflow-hidden bg-white mt-10 shadow-[0_4px_40px_rgba(0,0,0,0.04)]">
         <div className="flex-1 p-8 md:p-12 relative">
           <AnimatePresence mode="wait" custom={direction}>
+            {/* Step 1: Basic Info */}
             {step === 1 && (
               <motion.div
                 key="step1"
@@ -164,6 +159,7 @@ export default function CandidateUpload() {
               </motion.div>
             )}
 
+            {/* Step 2: Environmental Context */}
             {step === 2 && (
               <motion.div
                 key="step2"
@@ -213,6 +209,7 @@ export default function CandidateUpload() {
               </motion.div>
             )}
 
+            {/* Step 3: Resume Upload */}
             {step === 3 && (
               <motion.div
                 key="step3"
@@ -256,6 +253,7 @@ export default function CandidateUpload() {
               </motion.div>
             )}
 
+            {/* Step 4: Income Certificate */}
             {step === 4 && (
               <motion.div
                 key="step4"
@@ -299,6 +297,7 @@ export default function CandidateUpload() {
               </motion.div>
             )}
 
+            {/* Step 5: Review & Submit */}
             {step === 5 && (
               <motion.div
                 key="step5"
@@ -310,7 +309,7 @@ export default function CandidateUpload() {
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
                 className="space-y-6 text-center"
               >
-                <div className="w-20 h-20 rounded-full bg-positive/10 text-positive flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto mb-6">
                   <CheckCircle2 size={40} />
                 </div>
                 <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Ready for Processing</h2>
@@ -318,7 +317,7 @@ export default function CandidateUpload() {
                   {formData.name.split(' ')[0]}'s profile is ready. HireGround will extract skills and apply CEOS balancing against uniform baselines.
                 </p>
 
-                <div className="bg-secondary/10 border border-secondary/20 p-5 rounded-xl text-left">
+                <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl text-left">
                   <h4 className="font-bold text-gray-900 mb-1">Opportunity Credit Generation</h4>
                   <p className="text-sm text-gray-600">
                     Credits will be auto-calculated from district job density (DPIIT), college tier (NIRF), and connectivity index (TRAI).

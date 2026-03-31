@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { Layout } from './components/Layout'
+import { AppProvider } from './context/AppContext'
 
 // Standalone Pages
 import Hero from './pages/Hero'
@@ -13,6 +14,8 @@ import { CandidateSummary } from './components/CandidateSummary'
 import { EvaluationSection } from './components/EvaluationSection'
 import Analytics from './pages/Analytics'
 import FairnessPlatform from './pages/FairnessPlatform'
+import BatchUpload from './pages/BatchUpload'
+import FairnessPassport from './pages/FairnessPassport'
 
 // Admin
 import { AdminProvider } from './admin/AdminContext'
@@ -49,9 +52,11 @@ function AppContent() {
           <Route path="/dashboard" element={<Navigate to="/candidate" replace />} />
           
           <Route path="/upload" element={<CandidateUpload />} />
+          <Route path="/batch" element={<BatchUpload />} />
           <Route path="/candidate" element={<CandidateSummary />} />
           <Route path="/evaluation" element={<EvaluationSection />} />
           <Route path="/insights" element={<Analytics />} />
+          <Route path="/passport/:id" element={<FairnessPassport />} />
         </Route>
 
         {/* Admin routes */}
@@ -62,6 +67,7 @@ function AppContent() {
           <Route path="/admin/scoring-config" element={<AdminScoringConfig />} />
           <Route path="/admin/constraints" element={<AdminConstraints />} />
           <Route path="/admin/fairness" element={<FairnessPlatform />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
         </Route>
       </Routes>
     </AnimatePresence>
@@ -70,8 +76,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AppProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AppProvider>
   )
 }

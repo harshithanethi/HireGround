@@ -24,9 +24,19 @@ def _jwt_exp_seconds() -> int:
 def verify_google_token(google_id_token: str) -> Dict[str, Any]:
     """
     Verifies Google ID token from GIS frontend.
-    If GOOGLE_CLIENT_ID is set, audience is strictly checked.
+    In development mode (no GOOGLE_CLIENT_ID), specifically allowed mock tokens starting with 'mock_'.
     """
     client_id = os.getenv("GOOGLE_CLIENT_ID")
+    
+    # Development/Demo fallthrough: Allow mock tokens if specifically requested and no client id is set.
+    if not client_id and google_id_token.startswith("mock_"):
+        return {
+            "sub": "mock-sub-12345",
+            "email": "demo@hireground.app",
+            "name": "Demo User",
+            "picture": "https://ui-avatars.com/api/?name=Demo+User&background=0D8B4E&color=fff",
+        }
+
     try:
         idinfo = gid_token.verify_oauth2_token(
             google_id_token,

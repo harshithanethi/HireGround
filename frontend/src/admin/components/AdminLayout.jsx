@@ -42,7 +42,7 @@ export function AdminLayout() {
             </div>
             <div className="min-w-0">
               <div className="text-gray-900 font-extrabold tracking-tight text-lg leading-none truncate">HireGround</div>
-              <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Admin</div>
+              <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Recruiter</div>
             </div>
           </Link>
 

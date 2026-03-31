@@ -16,6 +16,7 @@ PyMuPDF==1.25.5
 python-docx==1.1.2
 requests==2.32.5
 scikit-learn==1.7.2
+pypdf==6.9.2
 python-dotenv==1.2.2
 PyYAML==6.0.3
 python-multipart==0.0.20

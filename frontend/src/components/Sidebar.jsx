@@ -10,6 +10,7 @@ export function Sidebar({ isOpen, setIsOpen }) {
   
   const navLinks = [
     { to: '/upload', label: 'Upload', icon: UploadCloud },
+    { to: '/batch', label: 'Batch', icon: Users },
     { to: '/candidate', label: 'Candidate', icon: Users },
     { to: '/evaluation', label: 'Evaluation', icon: Star },
     { to: '/insights', label: 'Insights', icon: BarChart2 },
@@ -85,16 +86,31 @@ export function Sidebar({ isOpen, setIsOpen }) {
             </nav>
 
             <div className="p-4 border-t border-gray-100 m-4 rounded-2xl bg-gray-50 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-500 font-bold shadow-sm">
-                AJ
-              </div>
-              <div className="flex-1">
-                <div className="text-sm font-bold text-gray-900">Ananya J.</div>
-                <div className="text-xs text-gray-500">Recruiter Admin</div>
-              </div>
+              {(() => {
+                const user = JSON.parse(localStorage.getItem("hg_user") || "{}");
+                return (
+                  <>
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-500 font-bold shadow-sm overflow-hidden border border-gray-100">
+                      {user.picture ? (
+                        <img src={user.picture} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        user.name?.charAt(0) || "U"
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm font-bold text-gray-900 truncate max-w-[120px]">{user.name || "Recruiter"}</div>
+                      <div className="text-xs text-gray-500 truncate max-w-[120px]">{user.email || "Free Tier"}</div>
+                    </div>
+                  </>
+                );
+              })()}
               <button 
-                onClick={() => navigate('/')}
-                className="text-gray-400 hover:text-primary transition-colors p-2 rounded-lg hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+                onClick={() => {
+                  localStorage.removeItem("hg_access_token");
+                  localStorage.removeItem("hg_user");
+                  navigate('/');
+                }}
+                className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-white focus:outline-none focus:ring-2 focus:ring-red-100"
                 title="Logout"
               >
                 <LogOut size={16} />

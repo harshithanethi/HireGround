@@ -15,19 +15,23 @@
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #e5e7eb;
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #d1d5db;
 }
 
 /* Selection */
 ::selection {
-  background: rgba(124, 58, 237, 0.2); /* theme primary violet */
+  background: rgba(124, 58, 237, 0.2);
+  /* theme primary violet */
   color: #7c3aed;
 }

@@ -4,7 +4,7 @@ import os
 import tempfile
 from typing import Optional
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile, status
 
 from app.schemas import (
     ParsedResume,
@@ -13,15 +13,35 @@ from app.schemas import (
     ContextStatsResponse,
 )
 from app.services.analytics import build_context_stats
+from app.services.auth import decode_access_token
 from app.services.pipeline import score_from_parsed
 from app.services.parser import parse_resume
 
 
 router = APIRouter()
 
+_REQUIRE_AUTH = os.getenv("HIREGROUND_REQUIRE_AUTH", "false").lower() in {"1", "true", "yes"}
+
+
+def require_auth(authorization: str | None = Header(default=None)) -> dict:
+    if not _REQUIRE_AUTH:
+        # Demo-friendly mode: allow calls without Google login.
+        return {"sub": "anonymous"}
+    if not authorization:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Authorization header")
+    parts = authorization.split(" ", 1)
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Authorization format")
+    token = parts[1]
+    claims = decode_access_token(token)
+    return claims
+
 
 @router.post("/v1/parse-resume", response_model=ParsedResume)
-async def parse_resume_v1(file: UploadFile = File(...)):
+async def parse_resume_v1(
+    file: UploadFile = File(...),
+    _claims: dict = Depends(require_auth),
+):
     """
     Offline-safe parsing: PDF/DOCX -> ParsedResume.
     No external network calls; uses local heuristics + local CSV lookups.
@@ -40,7 +60,10 @@ async def parse_resume_v1(file: UploadFile = File(...)):
 
 
 @router.post("/v1/score-single", response_model=ScoreResponseV1)
-def score_single_v1(payload: ScoreParsedRequest):
+def score_single_v1(
+    payload: ScoreParsedRequest,
+    _claims: dict = Depends(require_auth),
+):
     """
     Score a single already-parsed resume against a job description.
     Returns baseline vs equitable score + Fairness Passport + AFS/CEOS.
@@ -50,7 +73,10 @@ def score_single_v1(payload: ScoreParsedRequest):
 
 
 @router.get("/v1/context-stats", response_model=ContextStatsResponse)
-def context_stats_v1(sample_size: Optional[int] = None):
+def context_stats_v1(
+    sample_size: Optional[int] = None,
+    _claims: dict = Depends(require_auth),
+):
     """
     Lightweight dataset stats for the dashboard (offline mode).
     """

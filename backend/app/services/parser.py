@@ -42,12 +42,21 @@ def _extract_text_from_pdf(path: str) -> str:
     try:
         import fitz  # type: ignore
     except ImportError as exc:
-        raise RuntimeError(
-            "PyMuPDF (fitz) is not available in this environment. "
-            "PDF parsing requires libstdc++.so.6. "
-            "Install system dependency `libstdc++6` (Debian/Ubuntu) "
-            "or enable gcc/libstdcxx in your nix-shell."
-        ) from exc
+        # Fallback: pypdf is pure-Python and avoids native `libstdc++` dependencies.
+        from pypdf import PdfReader
+
+        try:
+            reader = PdfReader(path)
+            parts: List[str] = []
+            for page in reader.pages:
+                parts.append(page.extract_text() or "")
+            return "\n".join(parts)
+        except Exception as pypdf_exc:
+            raise RuntimeError(
+                "PDF parsing failed. Tried PyMuPDF then pypdf. "
+                "If you uploaded a PDF, ensure either fitz dependencies "
+                "(`libstdc++6`) are available or pypdf can extract text."
+            ) from pypdf_exc
 
     doc = fitz.open(path)
     try:
