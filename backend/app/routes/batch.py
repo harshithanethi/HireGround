@@ -101,7 +101,7 @@ async def score_batch_files_v1(
     Upload PDFs/DOCX + provide job fields in a multipart form.
     Returns the same response shape as /score-batch for easy UI reuse.
     """
-    from app.schemas import Candidate, JobDescription, BatchScoreRequest
+    from app.schemas import Candidate, CandidateScoreV1, JobDescription
 
     job = JobDescription(
         title=job_title,
@@ -109,9 +109,11 @@ async def score_batch_files_v1(
         preferred_skills=[s.strip() for s in preferred_skills.split(",") if s.strip()],
     )
 
-    # Parse all files -> Candidate (legacy schema) + keep v1 scoring separately for dashboard later
+    threshold = float(shortlist_threshold) if shortlist_threshold is not None else 80.0
+
     candidates: List[Candidate] = []
-    v1_results_by_name = {}
+    v1_passports_by_name: dict[str, dict] = {}
+    results: List[CandidateScoreResult] = []
 
     for f in files:
         suffix = os.path.splitext(f.filename or "")[1].lower()
@@ -120,7 +122,7 @@ async def score_batch_files_v1(
             tmp_path = tmp.name
         try:
             parsed = parse_resume(tmp_path)
-            # legacy Candidate for existing batch fairness stack
+            # Legacy Candidate object is used only to group candidates for fairness metrics.
             candidates.append(
                 Candidate(
                     id=None,
@@ -131,26 +133,71 @@ async def score_batch_files_v1(
                     cgpa=parsed.cgpa,
                     certifications_count=parsed.certifications_count,
                     achievements_count=0,
-                    college_tier=1 if parsed.college_tier == "Tier1" else 2 if parsed.college_tier == "Tier2" else 3,
+                    college_tier=(
+                        1 if parsed.college_tier == "Tier1" else 2 if parsed.college_tier == "Tier2" else 3
+                    ),
                     location_type="rural" if parsed.rural_flag else "urban",
                     internet_access="good",
                     financial_constraints=False,
                     first_generation_student=parsed.first_gen_flag,
                 )
             )
-            v1_results_by_name[(parsed.name or (f.filename or "Unknown"))] = score_from_parsed(parsed, job)
+            v1: CandidateScoreV1 = score_from_parsed(parsed, job)
+            name = v1.candidate_name
+            v1_passports_by_name[name] = v1.passport.model_dump()
+
+            results.append(
+                CandidateScoreResult(
+                    candidate_id=None,
+                    candidate_name=name,
+                    baseline_score=v1.baseline_score,
+                    context_adjustment=v1.context_adjustment,
+                    final_score=v1.final_score,
+                    explanation=v1.adjustment_breakdown,
+                )
+            )
         finally:
             try:
                 os.remove(tmp_path)
             except OSError:
                 pass
 
-    # Reuse existing scoring path
-    resp = score_batch(BatchScoreRequest(candidates=candidates, job=job))
-    # Attach v1 passport scores to fairness_summary for richer UI consumption.
-    resp.fairness_summary["v1_passports"] = {
-        name: r.passport.model_dump() for name, r in v1_results_by_name.items()
+    baseline_sorted = sorted(results, key=lambda x: x.baseline_score, reverse=True)
+    final_sorted = sorted(results, key=lambda x: x.final_score, reverse=True)
+
+    baseline_ranks = {r.candidate_name: i + 1 for i, r in enumerate(baseline_sorted)}
+    final_ranks = {r.candidate_name: i + 1 for i, r in enumerate(final_sorted)}
+
+    for result in results:
+        result.baseline_rank = baseline_ranks[result.candidate_name]
+        result.final_rank = final_ranks[result.candidate_name]
+        result.rank_shift = result.baseline_rank - result.final_rank
+
+    fairness_summary = build_fairness_summary(results)
+    group_fairness = build_group_fairness(candidates, results, shortlist_threshold=threshold)
+    audit = build_bias_audit_report(candidates)
+
+    adjusted_candidates = sum(1 for r in results if r.context_adjustment > 0)
+    avg_adjustment = (
+        sum(r.context_adjustment for r in results) / len(results) if results else 0.0
+    )
+
+    rural_gain = float(group_fairness.get("rural_representation_gain", 0.0))
+    ceos_batch = calculate_ceos_batch(
+        total_candidates=len(results),
+        adjusted_candidates=adjusted_candidates,
+        avg_adjustment=avg_adjustment,
+        max_possible_adjustment=25.0,
+        rural_representation_gain=rural_gain,
+    )
+
+    fairness_summary_payload = {
+        **fairness_summary,
+        "ceos_batch": ceos_batch,
+        "group_fairness": group_fairness,
+        "bias_audit": audit,
+        "v1_passports": v1_passports_by_name,
+        "shortlist_threshold_override": threshold,
     }
-    if shortlist_threshold is not None:
-        resp.fairness_summary["shortlist_threshold_override"] = float(shortlist_threshold)
-    return resp
+
+    return BatchScoreResponse(results=results, fairness_summary=fairness_summary_payload)

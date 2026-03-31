@@ -20,7 +20,6 @@ export function HeroNav() {
           <a href="#features" className="hover:text-primary transition-colors">Features</a>
           <a href="#how-it-works" className="hover:text-primary transition-colors">How It Works</a>
           <a href="#results" className="hover:text-primary transition-colors">Results</a>
-          <a href="#pricing" className="hover:text-primary transition-colors">Pricing</a>
         </div>
 
         {/* Auth */}

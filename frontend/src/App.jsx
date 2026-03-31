@@ -1,6 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { Layout } from './components/Layout'
+import { AppProvider } from './context/AppContext'
 
 // Standalone Pages
 import Hero from './pages/Hero'
@@ -8,11 +9,11 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 
 // App Pages
-import RecruiterDashboard from './pages/RecruiterDashboard'
 import CandidateUpload from './pages/CandidateUpload'
-import ComparisonView from './pages/ComparisonView'
-import FairnessPassport from './pages/FairnessPassport'
+import { CandidateSummary } from './components/CandidateSummary'
+import { EvaluationSection } from './components/EvaluationSection'
 import Analytics from './pages/Analytics'
+import BatchUpload from './pages/BatchUpload'
 
 function AppContent() {
   const location = useLocation();
@@ -27,11 +28,14 @@ function AppContent() {
         
         {/* App routes (With Sidebar) */}
         <Route element={<Layout />}>
-          <Route path="/dashboard" element={<RecruiterDashboard />} />
+          <Route path="/app" element={<Navigate to="/upload" replace />} />
+          <Route path="/dashboard" element={<Navigate to="/candidate" replace />} />
+          
           <Route path="/upload" element={<CandidateUpload />} />
-          <Route path="/compare" element={<ComparisonView />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/passport/:id" element={<FairnessPassport />} />
+          <Route path="/batch" element={<BatchUpload />} />
+          <Route path="/candidate" element={<CandidateSummary />} />
+          <Route path="/evaluation" element={<EvaluationSection />} />
+          <Route path="/insights" element={<Analytics />} />
         </Route>
       </Routes>
     </AnimatePresence>
@@ -40,8 +44,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AppProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AppProvider>
   )
 }

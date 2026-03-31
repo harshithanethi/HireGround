@@ -28,6 +28,6 @@
 
 /* Selection */
 ::selection {
-  background: rgba(220, 38, 38, 0.2);
-  color: #dc2626;
+  background: rgba(124, 58, 237, 0.2); /* theme primary violet */
+  color: #7c3aed;
 }

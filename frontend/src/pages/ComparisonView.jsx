@@ -5,6 +5,7 @@ import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, AlertTriangle, CheckCircle2, Copy } from 'lucide-react'
+import { useAppContext } from '../context/AppContext'
 
 function FactorBar({ label, value, max = 100, colorClass = "bg-primary" }) {
   return (
@@ -26,6 +27,19 @@ function FactorBar({ label, value, max = 100, colorClass = "bg-primary" }) {
 }
 
 export default function ComparisonView() {
+  const { candidateResult, jobConfig } = useAppContext();
+  
+  const res = candidateResult || {
+    candidate_name: 'Aarav Nair',
+    baseline_score: 68,
+    final_score: 89,
+    context_adjustment: 21,
+    passport: { adjustment_breakdown: ["Rural Base (Wayanad) +12", "Tier-3 Institution +7", "First-Gen Graduate +2"] }
+  };
+  const base = Math.round(res.baseline_score || 68);
+  const final = Math.round(res.final_score || 89);
+  const adj = Math.round(res.context_adjustment || 21);
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Header */}
@@ -35,7 +49,7 @@ export default function ComparisonView() {
         </Link>
         <div>
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">Model Comparison</h1>
-          <p className="text-gray-500 font-medium mt-1">Aarav Nair • Frontend Engineer</p>
+          <p className="text-gray-500 font-medium mt-1">{res.candidate_name} • {jobConfig?.title || 'Frontend Engineer'}</p>
         </div>
       </div>
 
@@ -51,8 +65,8 @@ export default function ComparisonView() {
         <div>
           <h3 className="text-lg font-black text-gray-900 mb-1">CEOS Rescue Triggered</h3>
           <p className="text-gray-600 font-medium">
-            This candidate fails standard parsing models due to college name mismatch and low keyword density. 
-            The <strong className="text-gray-900">CEOS Model</strong> identifies structural disadvantages (Rural district + Tier-3 college) and applies a <strong className="text-secondary">+21 Opportunity Credit</strong>, pushing them over the shortlist threshold.
+            This candidate falls lower in standard parsing models due to missing elite keywords. 
+            The <strong className="text-gray-900">CEOS Model</strong> identifies structural disadvantages and applies a <strong className="text-secondary">+{adj} Opportunity Credit</strong>, pushing them to their true algorithmic potential.
           </p>
         </div>
       </motion.div>
@@ -67,10 +81,10 @@ export default function ComparisonView() {
           </div>
           <Card className="p-8 border-gray-200 bg-gray-50/50">
             <div className="flex flex-col items-center mb-10">
-              <ScoreRing score={68} size={100} strokeWidth={8} />
+              <ScoreRing score={base} size={100} strokeWidth={8} />
               <div className="mt-4 text-center">
                 <div className="text-sm font-bold text-gray-500 uppercase tracking-widest">Base Score</div>
-                <div className="text-xs text-gray-400 mt-1">Fails 75.0 threshold</div>
+                <div className="text-xs text-gray-400 mt-1">Uniform evaluation</div>
               </div>
             </div>
 
@@ -83,7 +97,7 @@ export default function ComparisonView() {
               <div className="h-px bg-gray-200 my-4" />
               <div className="flex justify-between font-bold text-gray-500">
                 <span>Final Output</span>
-                <span>68</span>
+                <span>{base}</span>
               </div>
             </div>
           </Card>
@@ -100,16 +114,16 @@ export default function ComparisonView() {
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-primary" />
             
             <div className="flex flex-col items-center mb-10 mt-2">
-              <ScoreRing score={89} size={100} strokeWidth={8} />
+              <ScoreRing score={final} size={100} strokeWidth={8} />
               <div className="mt-4 text-center">
                 <div className="text-sm font-bold text-primary uppercase tracking-widest">Adjusted Score</div>
-                <div className="text-xs text-gray-500 mt-1">Passes 75.0 threshold</div>
+                <div className="text-xs text-gray-500 mt-1">Context Applied</div>
               </div>
             </div>
 
             <div className="space-y-6 border-t border-gray-100 pt-6">
               <h4 className="font-bold text-gray-900 text-sm mb-4 uppercase tracking-wider">Factor Breakdown</h4>
-              <FactorBar label="Raw Baseline" value={68} colorClass="bg-gray-300" />
+              <FactorBar label="Raw Baseline" value={base} colorClass="bg-gray-300" />
               
               <div className="bg-secondary/5 -mx-4 px-4 py-4 rounded-xl border border-secondary/10 relative">
                 <div className="absolute left-[-10px] top-1/2 -translate-y-1/2 w-5 h-5 bg-white border border-secondary/20 rounded-full flex items-center justify-center text-[10px] font-black text-secondary">+</div>
@@ -117,19 +131,19 @@ export default function ComparisonView() {
                   <span className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
                     <span className="text-secondary"><Copy size={14} /></span> Opportunity Credit
                   </span>
-                  <span className="font-black text-secondary">+21</span>
+                  <span className="font-black text-secondary">+{adj}</span>
                 </div>
                 <div className="space-y-1 mt-3">
-                  <div className="flex justify-between text-xs text-gray-600"><span className="font-bold">Rural Base (Wayanad)</span><span>+12</span></div>
-                  <div className="flex justify-between text-xs text-gray-600"><span className="font-bold">Tier-3 Institution</span><span>+7</span></div>
-                  <div className="flex justify-between text-xs text-gray-600"><span className="font-bold">First-Gen Graduate</span><span>+2</span></div>
+                  {res.passport?.adjustment_breakdown?.map((b, i) => (
+                    <div key={i} className="flex justify-between text-xs text-gray-600"><span className="font-bold">{b}</span></div>
+                  ))}
                 </div>
               </div>
               
               <div className="h-px bg-gray-100 my-4" />
               <div className="flex justify-between font-black text-xl text-gray-900">
                 <span>Final Output</span>
-                <span>89</span>
+                <span>{final}</span>
               </div>
             </div>
           </Card>
