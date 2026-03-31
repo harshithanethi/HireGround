@@ -14,6 +14,7 @@ import { CandidateSummary } from './components/CandidateSummary'
 import { EvaluationSection } from './components/EvaluationSection'
 import Analytics from './pages/Analytics'
 import BatchUpload from './pages/BatchUpload'
+import FairnessPassport from './pages/FairnessPassport'
 
 function AppContent() {
   const location = useLocation();
@@ -36,6 +37,7 @@ function AppContent() {
           <Route path="/candidate" element={<CandidateSummary />} />
           <Route path="/evaluation" element={<EvaluationSection />} />
           <Route path="/insights" element={<Analytics />} />
+          <Route path="/passport/:id" element={<FairnessPassport />} />
         </Route>
       </Routes>
     </AnimatePresence>

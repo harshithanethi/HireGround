@@ -51,14 +51,14 @@ export default function FairnessPassport() {
       {/* Action Bar */}
       <div className="flex justify-between items-center">
          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Official Record</h1>
-         <div className="flex gap-3">
-           <Button variant="outline" className="text-xs h-9 gap-2 shadow-sm font-bold">
-             <Printer size={14} /> Print
-           </Button>
-           <Button variant="secondary" className="text-xs h-9 gap-2 bg-primary/10 text-primary border-transparent hover:bg-primary hover:text-white transition-colors">
-             <Download size={14} /> Export PDF
-           </Button>
-         </div>
+          <div className="flex gap-3 print:hidden">
+            <Button variant="outline" className="text-xs h-9 gap-2 shadow-sm font-bold" onClick={() => window.print()}>
+              <Printer size={14} /> Print
+            </Button>
+            <Button variant="secondary" className="text-xs h-9 gap-2 bg-primary/10 text-primary border-transparent hover:bg-primary hover:text-white transition-colors" onClick={() => window.print()}>
+              <Download size={14} /> Export PDF
+            </Button>
+          </div>
       </div>
 
       {/* PASSPORT DOCUMENT */}
@@ -199,8 +199,8 @@ export default function FairnessPassport() {
         </div>
       </Card>
       
-      <div className="pb-12 text-center">
-        <Link to="/dashboard" className="text-primary font-bold hover:underline text-sm">
+      <div className="pb-12 text-center print:hidden">
+        <Link to="/candidate" className="text-primary font-bold hover:underline text-sm">
           Return to Dashboard
         </Link>
       </div>
