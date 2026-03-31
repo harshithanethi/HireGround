@@ -13,6 +13,24 @@ import { CandidateSummary } from './components/CandidateSummary'
 import { EvaluationSection } from './components/EvaluationSection'
 import Analytics from './pages/Analytics'
 
+// Admin
+import { AdminProvider } from './admin/AdminContext'
+import { AdminLayout } from './admin/components/AdminLayout'
+import AdminHome from './admin/pages/AdminHome'
+import AdminCandidates from './admin/pages/AdminCandidates'
+import AdminCandidateDetail from './admin/pages/AdminCandidateDetail'
+import AdminScoringConfig from './admin/pages/AdminScoringConfig'
+import AdminConstraints from './admin/pages/AdminConstraints'
+import AdminSettings from './admin/pages/AdminSettings'
+
+function AdminShell() {
+  return (
+    <AdminProvider>
+      <AdminLayout />
+    </AdminProvider>
+  )
+}
+
 function AppContent() {
   const location = useLocation();
   
@@ -33,6 +51,16 @@ function AppContent() {
           <Route path="/candidate" element={<CandidateSummary />} />
           <Route path="/evaluation" element={<EvaluationSection />} />
           <Route path="/insights" element={<Analytics />} />
+        </Route>
+
+        {/* Admin routes */}
+        <Route element={<AdminShell />}>
+          <Route path="/admin" element={<AdminHome />} />
+          <Route path="/admin/candidates" element={<AdminCandidates />} />
+          <Route path="/admin/candidates/:id" element={<AdminCandidateDetail />} />
+          <Route path="/admin/scoring-config" element={<AdminScoringConfig />} />
+          <Route path="/admin/constraints" element={<AdminConstraints />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
         </Route>
       </Routes>
     </AnimatePresence>
